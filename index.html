@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>New York, 29 ottobre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: segnaletica della metro di NY. Testata, punti fissi, "il nostro viaggio" con i match, barra di navigazione fissa, schede con il voto di Ale e Anna */
+:root{
+  --bg:#eef0f2; --surface:#ffffff; --ink:#15181d; --muted:#5b636e; --line:#d5d9de;
+  --accent:#ff6319; /* linee B D F M, fermata Broadway–Lafayette sotto casa */
+  --ale:#0039a6; /* linee A C E */
+  --anna:#b933ad; /* linea 7 */
+  --si:#1f8a4c; --forse:#c98a00; --no:#9aa1aa; --chip:#e4e7eb; --match:#1f8a4c;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Source Sans 3","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111317; --surface:#1b1e24; --ink:#eceef1; --muted:#9aa3ae; --line:#2c3139;
+  --accent:#ff7a3d; --ale:#5b8bff; --anna:#e07ad7; --si:#3fb871; --forse:#e2a72a; --no:#6b737d; --chip:#262a31; --match:#3fb871; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111317; --surface:#1b1e24; --ink:#eceef1; --muted:#9aa3ae; --line:#2c3139;
+  --accent:#ff7a3d; --ale:#5b8bff; --anna:#e07ad7; --si:#3fb871; --forse:#e2a72a; --no:#6b737d; --chip:#262a31; --match:#3fb871; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:6px 0 0;max-width:70ch}
+.stops{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:14px;font-size:14px;color:var(--muted)}
+.stop{display:flex;align-items:center;gap:6px}
+.bul{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font:700 12px/1 var(--display);color:#fff;flex:0 0 auto}
+.b-orange{background:#ff6319}.b-green{background:#00933c}.b-yellow{background:#fccc0a;color:#111}
+.b-ale{background:var(--ale)}.b-anna{background:var(--anna)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+section{margin-top:36px;scroll-margin-top:120px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec-h h2{font-size:22px;font-weight:700}
+.sec-h p{margin:0;color:var(--muted);font-size:15px;max-width:80ch}
+.grp-h{margin-top:28px;padding-top:10px;border-top:3px solid var(--ink);scroll-margin-top:120px}
+.grp-h h2{font-size:30px;font-weight:800}
+.fixed{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:18px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.day .d{font:700 13px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.day ul{margin:8px 0 0;padding-left:18px}
+.day li{margin:3px 0}
+.t{font-family:var(--mono);font-size:13px}
+
+/* barra fissa */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);border-bottom:1px solid var(--line);padding-block:8px;margin-top:22px;display:grid;gap:6px;box-shadow:0 6px 12px -10px rgba(0,0,0,.25)}
+.bar-row{display:flex;gap:8px;align-items:center;min-width:0}
+.chips{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.bar-row.chips{padding-bottom:0}
+.chip{flex:0 0 auto;font:600 14px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.tog{margin-left:auto;border-style:dashed}
+.search{flex:0 1 260px;min-width:140px;font:15px var(--body);padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink)}
+#filters{flex:1 1 auto}
+.tally{display:flex;gap:12px;align-items:center;font-size:14px;color:var(--muted);flex:0 0 auto;white-space:nowrap}
+.tally b{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
+@media (max-width:820px){.bar-row:last-child{flex-wrap:wrap}.search{flex:1 1 100%}.tally .save{display:none}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* il nostro viaggio */
+.trip{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px}
+.trip-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.trip h3{font-size:16px;margin-bottom:6px}
+.trip ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.trip li button{all:unset;cursor:pointer;display:flex;gap:8px;align-items:baseline}
+.trip li button:hover{text-decoration:underline}
+.trip .cat{font-size:12px;color:var(--muted)}
+.trip .empty{color:var(--muted);font-size:15px}
+
+/* schede */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0;position:relative}
+.card.match{border-color:var(--match);box-shadow:0 0 0 2px var(--match)}
+.card.nono .ph img{filter:grayscale(1);opacity:.5}
+.badge{position:absolute;top:10px;left:10px;z-index:2;font:700 12px var(--display);letter-spacing:.04em;text-transform:uppercase;background:var(--match);color:#fff;padding:4px 9px;border-radius:999px}
+.ph{aspect-ratio:4/3;max-width:100%;background:var(--chip);overflow:hidden;position:relative;display:grid;place-items:center}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .noimg{color:var(--muted);font-size:14px;padding:12px;text-align:center}
+.more{position:absolute;right:8px;bottom:8px;font:600 12px var(--body);background:rgba(0,0,0,.62);color:#fff;padding:4px 8px;border-radius:999px}
+.open{all:unset;cursor:pointer;display:block}
+.body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.body h3{font-size:18px;font-weight:700}
+.body p{margin:0;font-size:15px}
+.meta{font-size:13px;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.prezzo,.sconto{display:inline-block;font:600 12px var(--body);padding:2px 8px;border-radius:999px;width:fit-content}
+.prezzo{color:var(--ink);background:var(--chip)}
+.sconto{color:var(--si);background:color-mix(in srgb,var(--si) 14%,transparent)}
+.votes{display:grid;gap:6px;margin-top:auto;padding-top:10px}
+.vrow{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
+.vrow .bul{width:26px;height:26px;font-size:11px}
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.vrow .seg3 button{font:600 13px var(--body);padding:5px 0;border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);cursor:pointer}
+.vrow .seg3 button:first-child{border-left:0}
+.vrow .seg3 button:hover{background:var(--chip)}
+.vrow button[aria-pressed="true"][data-k="si"]{background:var(--si);border-color:var(--si);color:#fff}
+.vrow button[aria-pressed="true"][data-k="forse"]{background:var(--forse);border-color:var(--forse);color:#111}
+.vrow button[aria-pressed="true"][data-k="no"]{background:var(--no);border-color:var(--no);color:#fff}
+.hidden-by-filter{display:none!important}
+
+/* chi dice cosa, serate */
+details.best{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+details.best summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+details.best .bc{font:700 17px var(--display)}
+details.best .bs{color:var(--muted);font-size:14px;flex:1;min-width:0}
+.bt{overflow-x:auto}
+.evs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ev h3{font-size:17px}
+.ev p{margin:0}
+.ev-when{font:600 13px var(--mono);color:var(--accent)}
+table.menu{width:100%;border-collapse:collapse;font-size:15px;margin:6px 0}
+table.menu td{border-top:1px solid var(--line);padding:6px 4px;vertical-align:top}
+table.menu td.pz{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+.notes{margin-top:40px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.notes label{font:700 16px var(--display);display:block;margin-bottom:8px}
+.notes textarea{width:100%;min-height:110px;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:10px;font:16px var(--body);background:var(--bg);color:var(--ink);resize:vertical}
+.credit{margin-top:28px;font-size:12px;color:var(--muted)}
+.save{font-size:13px;color:var(--muted)}
+
+/* scheda aperta */
+dialog{border:none;padding:0;border-radius:14px;max-width:min(1080px,calc(100vw - 24px));width:100%;max-height:calc(100dvh - 24px);background:var(--surface);color:var(--ink);overflow:auto}
+dialog::backdrop{background:rgba(10,12,16,.65)}
+.dlg-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.dlg-head h2{font-size:22px;flex:1;min-width:0}
+.dlg-head .pos{font:500 13px var(--mono);color:var(--muted)}
+.btn{font:600 15px var(--body);border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.dlg-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0}
+@media (max-width:820px){.dlg-grid{grid-template-columns:1fr}}
+.gal{padding:14px 16px}
+.gal .big{aspect-ratio:4/3;max-width:100%;border-radius:10px;overflow:hidden;background:var(--chip);position:relative}
+.gal .big img{width:100%;height:100%;object-fit:cover;display:block}
+.gal .nav{position:absolute;top:50%;transform:translateY(-50%);border:none;background:rgba(0,0,0,.5);color:#fff;width:38px;height:38px;border-radius:50%;font-size:20px;cursor:pointer}
+.gal .nav.l{left:8px}.gal .nav.r{right:8px}
+.thumbs{display:flex;gap:8px;margin-top:8px;overflow-x:auto;padding-bottom:4px}
+.thumbs button{all:unset;cursor:pointer;flex:0 0 auto;width:86px;aspect-ratio:4/3;border-radius:6px;overflow:hidden;border:2px solid transparent}
+.thumbs button[aria-current="true"]{border-color:var(--accent)}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.cred{font-size:15px;font-weight:600;margin-top:6px;min-height:1.2em}
+.maps{display:inline-block;margin-top:8px;font:600 14px var(--body);color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:5px 12px}
+.dlg-body{padding:14px 16px 20px;display:grid;gap:16px;align-content:start;border-left:1px solid var(--line)}
+@media (max-width:820px){.dlg-body{border-left:none}}
+.dlg-body h4{font:700 13px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.desc{margin:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:15px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.rev{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.rev ul{margin:0;padding-left:18px}
+.voto{font:700 16px var(--display);margin:0}
+.src{font-size:13px;color:var(--muted)}
+.src a,.facts a{color:var(--accent)}
+ol.perc{margin:0;padding-left:20px;display:grid;gap:6px}
+.pending{color:var(--muted);font-size:15px}
+.dlg-votes{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,280px)) 1fr;gap:10px 18px;align-items:center}
+.dlg-votes .kbd{justify-self:end;font-size:12px;color:var(--muted)}
+@media (max-width:640px){.dlg-votes{grid-template-columns:1fr}.dlg-votes .kbd{display:none}}
+.kbd{font:500 12px var(--mono);color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+
+/* testata e settimana */
+.hero{display:grid;gap:14px}
+.hero-t{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.hero-d{font:700 clamp(18px,2.4vw,26px) var(--display);color:var(--accent);white-space:nowrap}
+.base{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;font-size:15px}
+.base>span{white-space:nowrap}
+.base .stop{color:var(--muted);font-size:14px}
+.ic{width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.how{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.how li{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:15px}
+.how .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);font:700 13px var(--display);flex:0 0 auto}
+kbd{font:600 12px var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--bg)}
+.week{display:grid;grid-template-columns:repeat(7,minmax(168px,1fr));gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px}
+.wd{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:10px;padding:10px 10px 12px;min-width:0;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px}
+.wd.free{border-top-color:var(--line);background:transparent;border-style:dashed;border-top-style:solid}
+.wd.hw{border-top-color:#f08c00}
+.wd-h{display:flex;align-items:baseline;gap:6px}
+.dow{font:700 13px var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.num{font:800 30px/1 var(--display)}
+.mon{font-size:13px;color:var(--muted)}
+.libero{font:700 15px var(--display);color:var(--muted)}
+.evl{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.e{display:grid;grid-template-columns:18px 1fr;column-gap:7px;font-size:14px;line-height:1.3;align-items:start}
+.e .ic{grid-row:span 2;margin-top:1px;color:var(--muted)}
+.e .tm{font:600 12px var(--mono);color:var(--muted)}
+.e .tx{grid-column:2}
+.e.key .tx{font-weight:700}.e.key .ic{color:var(--accent)}
+.e.night .ic{color:var(--anna)}.e.night .tx{font-weight:700}
+.e.go .ic{color:var(--ale)}
+.tg{display:inline-block;font:600 12px/1.3 var(--body);padding:3px 8px;border-radius:8px;width:fit-content}
+.tg.ok{color:var(--si);background:color-mix(in srgb,var(--si) 13%,transparent)}
+.tg.ko{color:var(--muted);background:var(--chip);text-decoration:line-through}
+.tg.note{color:var(--muted);background:transparent;padding:0;font-weight:400}
+.under{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:8px}
+@media (max-width:820px){.under{grid-template-columns:1fr}}
+.route,.always{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.r-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.r-h .src{font-size:13px;color:var(--muted)}
+.always p{margin:8px 0 0}
+.route .src{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.line{display:flex;align-items:flex-start;margin-top:6px;overflow-x:auto;padding:28px 0 4px}
+.st{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;width:74px}
+.st i{width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);box-sizing:border-box}
+.st.home i{background:var(--accent);border-color:var(--accent)}
+.st span{font:600 12px var(--body);white-space:nowrap}
+.seg{flex:1 1 90px;min-width:90px;height:6px;margin:4px -30px 0;border-radius:3px;position:relative;z-index:0}
+.st{position:relative;z-index:1}
+.seg>span{position:absolute;left:50%;top:-24px;transform:translateX(-50%);font:600 12px var(--body);white-space:nowrap;display:flex;align-items:center;gap:4px;color:var(--muted)}
+.seg .bul{width:16px;height:16px;font-size:10px}
+.seg.air{background:var(--no)}.seg.e{background:var(--ale)}.seg.f{background:var(--accent)}
+/* piano */
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.sc{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:10px 12px}
+.sc .bul{width:30px;height:30px;font-size:13px}
+.sc>div{flex:1;min-width:0}
+.sc small{color:var(--muted);font-size:13px}
+.pb{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:4px 0 2px}
+.pb i{display:block;height:100%;border-radius:3px}
+.sc.m .big{font:800 30px/1 var(--display);color:var(--match)}
+.nudge{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px}
+.plan-g h3{font:700 13px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.minis{display:flex;flex-wrap:wrap;gap:6px}
+.mini{display:inline-flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px 10px 3px 3px;font:600 14px var(--body);color:var(--ink);cursor:pointer;white-space:nowrap;max-width:100%}
+.mini:hover{border-color:var(--ink)}
+.mini img,.mini .ph0{width:36px;height:36px;object-fit:cover;border-radius:7px;background:var(--chip);flex:0 0 auto}
+.mini .bul{width:18px;height:18px;font-size:9px}
+.mini.m{border-color:var(--match)}
+.zones{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.cm{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;margin-top:8px}
+.cm textarea{min-height:52px;box-sizing:border-box;width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:15px var(--body);background:var(--bg);color:var(--ink);resize:vertical}
+.cmn:empty{display:none}.cmn{font:600 12px var(--body);color:var(--ale);background:color-mix(in srgb,var(--ale) 12%,transparent);padding:2px 8px;border-radius:999px}
+.stk{position:absolute;top:10px;right:10px;z-index:2;display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:62%;pointer-events:none}
+.sticker{display:inline-flex;flex-direction:column;align-items:flex-start;background:#ffd400;color:#111;border-radius:10px;padding:5px 9px 4px;box-shadow:0 2px 0 rgba(0,0,0,.25),0 6px 14px -6px rgba(0,0,0,.5);transform:rotate(-3deg);line-height:1.15}
+.stk .sticker:nth-child(2){transform:rotate(2deg)}
+.sticker b{font:800 13px var(--display);letter-spacing:-.01em}
+.sticker small{font:600 11px var(--body);opacity:.75}
+.sticker small a{color:inherit}
+.sticker.more2{font:800 12px var(--display)}
+.stk-l{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.stk-l .sticker{transform:none}
+/* mappa */
+.mapbox{position:relative;height:300px;border-radius:10px;overflow:hidden;background:#eef0ee;margin-top:12px;--s:1;border:1px solid var(--line)}
+.mapbox.big{height:min(70vh,620px);margin:0}
+.mapin{position:absolute;left:50%;top:50%;background:url(map-z15.jpg) 0 0/100% 100% no-repeat;transform-origin:0 0;transform:scale(var(--s)) translate(calc(-1 * var(--cx)),calc(-1 * var(--cy)));transition:transform .25s}
+.mk{--o:7px;position:absolute;transform:translate(calc(-1 * var(--o)),-50%) scale(calc(1 / var(--s)));transform-origin:var(--o) 50%;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;color:#111}
+.mk i{display:block;width:10px;height:10px;border-radius:50%;background:#7a828c;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4);flex:0 0 auto;font-style:normal}
+.mk.s i{background:var(--ale)}.mk.m i{background:var(--match);width:13px;height:13px}
+.mk>span{display:none;font:600 12px var(--body);background:rgba(255,255,255,.92);padding:1px 6px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.mk.lb>span,.mk:hover>span{display:inline}
+.mk.me{z-index:3;--o:13px}.mk.me i{width:20px;height:20px;background:var(--accent);border-width:3px}
+.mk.me>span{display:inline;font-weight:800;font-size:13px}
+.mk.home{z-index:2;--o:10px}.mk.home i{width:16px;height:16px;border-radius:4px;background:var(--ink)}
+.mk.home>span{display:inline}
+.mk.stop{z-index:3;--o:14px}.mk.stop i{width:24px;height:24px;background:var(--accent);color:#fff;font:800 12px/20px var(--display);text-align:center}
+.route{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;background:transparent!important}
+.route polyline{fill:none;stroke:var(--accent);stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 0;opacity:.85}
+.mapctl{position:absolute;right:8px;top:8px;display:grid;gap:4px}
+.mapctl button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 16px var(--display);cursor:pointer}
+.mapnote{position:absolute;left:8px;bottom:8px;font:600 12px var(--body);background:rgba(255,255,255,.92);color:#111;padding:3px 8px;border-radius:6px}
+.mapcred{position:absolute;right:6px;bottom:4px;font-size:10px;color:#555;background:rgba(255,255,255,.7);padding:0 4px;border-radius:4px}
+/* pacchetti */
+.packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.pk{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.pk-strip{display:grid;grid-template-columns:repeat(4,1fr);height:90px;gap:2px;background:var(--chip)}
+.pk-strip img{width:100%;height:100%;object-fit:cover;min-width:0}
+.pk-b{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.pk-z{font:700 12px var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.pk h3{font-size:18px}
+.pk p{margin:0;font-size:14px}
+.pk-t{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.pk-t li{display:flex;align-items:baseline;gap:8px;font-size:14px;min-width:0}
+.pk-t .r{flex:0 0 92px;font:600 11px var(--mono);text-transform:uppercase;color:var(--muted)}
+.pk-t li.r-di-passaggio .r{color:var(--si)}
+.pk-t button,.lnk{all:unset;cursor:pointer;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.pk-t button:hover,.lnk:hover{text-decoration-color:var(--ink)}
+.okm{font:700 11px var(--body);color:#fff;background:var(--match);border-radius:999px;padding:0 6px}
+.pk-f{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.pass{font:600 12px var(--body);color:var(--si);border:1px dashed var(--si);padding:1px 8px;border-radius:999px}
+#pk-dlg{max-width:min(1200px,calc(100vw - 24px))}
+.pk-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;padding:16px}
+@media (max-width:820px){.pk-grid{grid-template-columns:1fr}}
+.pk-t.big li{align-items:flex-start;font-size:15px}
+.pk-t.big .num{flex:0 0 24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font:800 12px/24px var(--display);text-align:center}
+.pk-t.big .r{flex:none}
+.pk-t.big li.leg{font:500 12px var(--mono);color:var(--muted);padding-left:32px}
+.sticker.red{background:#e4002b;color:#fff}
+.ph.mosaic{display:grid;place-items:stretch;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:2px}
+.ph.mosaic img{width:100%;height:100%;object-fit:cover;object-position:center;min-width:0;min-height:0}
+.ph.mosaic .m0{grid-row:1 / 3}
+.book{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:4px}
+.book.lv-difficile,.book.lv-quasi-impossibile{border-color:#e4002b}
+.book p{margin:4px 0}
+.book .chk{font-size:14px}
+</style>
+
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}</style>
+</head><body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-t">
+      <h1>New York</h1>
+      <div class="hero-d">29 ottobre – 4 novembre</div>
+    </div>
+    <div class="base"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8M5 9v12h14V9"/></svg><span><b>1 Bond Street</b>, NoHo</span>
+      <span class="stop"><span class="bul b-orange">F</span>Broadway–Lafayette · 3 min</span>
+      <span class="stop"><span class="bul b-green">6</span>Bleecker St · 3 min</span>
+      <span class="stop"><span class="bul b-yellow">R</span>Prince St · 6 min</span>
+    </div>
+    <ol class="how">
+      <li><span class="n">1</span><span>Votate tutti e due: <b>Sì</b>, <b>Forse</b> o <b>No</b></span></li>
+      <li><span class="n">2</span><span>Due Sì = <b>match</b></span></li>
+      <li><span class="n">3</span><span>I match vanno nel <b>vostro piano</b>, per zona</span></li>
+      <li><span class="n">4</span><span>Scheda aperta: <kbd>←</kbd> <kbd>→</kbd> per scorrere</span></li>
+    </ol>
+  </header>
+
+  <section aria-labelledby="h-fissi">
+    <div class="sec-h"><h2 id="h-fissi">La settimana</h2><p>Quello che è già deciso. I giorni liberi si riempiono con i match.</p></div>
+    <div class="week"><div class="wd "><div class="wd-h"><span class="dow">Gio</span><span class="num">29</span><span class="mon">ott</span></div><ul class="evl"><li class="e go"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l18-7-7 18-3-8z"/></svg><span class="tm">14:15</span><span class="tx">Atterraggio JFK</span></li><li class="e go"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M8 20l-2 2M16 20l2 2M9 13h.01M15 13h.01"/></svg><span class="tm">~17:00</span><span class="tx">A casa in metro</span></li><li class="e key"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v18M4 3v5a3 3 0 0 0 6 0V3M17 21V3c-2 1-3 4-3 8h3"/></svg><span class="tm">sera</span><span class="tx">Cena con gli zii</span></li><li class="tg ok">New Museum offerta libera 19–21</li><li class="tg note">Biglietti Gatsby in mail Bocconi dopo le 20</li></ul></div><div class="wd free"><div class="wd-h"><span class="dow">Ven</span><span class="num">30</span><span class="mon">ott</span></div><div class="libero">Libero</div><ul class="evl"></ul></div><div class="wd hw"><div class="wd-h"><span class="dow">Sab</span><span class="num">31</span><span class="mon">ott</span></div><ul class="evl"><li class="e key"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5c5 2 11 2 16 0v6a8 8 0 0 1-16 0z"/><path d="M8 10h2M14 10h2M9 15c2 1.5 4 1.5 6 0"/></svg><span class="tm">19:00</span><span class="tx">Parata di Halloween, 10 min a piedi</span></li><li class="e night"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span class="tm">notte</span><span class="tx">Si balla</span></li><li class="e "><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l-3 2"/></svg><span class="tm">2:00</span><span class="tx">Ora indietro: un'ora in più</span></li></ul></div><div class="wd "><div class="wd-h"><span class="dow">Dom</span><span class="num">1</span><span class="mon">nov</span></div><ul class="evl"><li class="e "><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h12l-2 4 2 4H5"/></svg><span class="tm">mattina</span><span class="tx">Maratona: parco, 1st e 5th Ave chiusi</span></li><li class="e key"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z"/><path d="M13 7v10"/></svg><span class="tm">20:00</span><span class="tx">The Great Gatsby, Broadway Theatre</span></li><li class="tg ok">Guggenheim offerta libera 16–17:30</li></ul></div><div class="wd free"><div class="wd-h"><span class="dow">Lun</span><span class="num">2</span><span class="mon">nov</span></div><div class="libero">Libero</div><ul class="evl"><li class="tg ok">Museo 11/9 gratis · prenotare alle 13 italiane</li></ul></div><div class="wd free"><div class="wd-h"><span class="dow">Mar</span><span class="num">3</span><span class="mon">nov</span></div><div class="libero">Libero</div><ul class="evl"><li class="tg ok">Guggenheim offerta libera 16–17:30</li><li class="tg ko">Whitney chiuso</li></ul></div><div class="wd "><div class="wd-h"><span class="dow">Mer</span><span class="num">4</span><span class="mon">nov</span></div><ul class="evl"><li class="tg ok">Frick offerta libera 13:30–17:30</li><li class="tg ko">Met chiuso</li><li class="e go"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8M5 9v12h14V9"/></svg><span class="tm">17:30</span><span class="tx">Partenza da casa</span></li><li class="e go"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l18-7-7 18-3-8z"/></svg><span class="tm">21:00</span><span class="tx">Volo da JFK</span></li></ul></div></div>
+    <div class="under">
+      <div class="route">
+        <div class="r-h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M8 20l-2 2M16 20l2 2M9 13h.01M15 13h.01"/></svg><b>Da JFK a casa</b><span class="src">circa 75 min · 11,50 $ a testa · carta contactless, una a testa</span></div>
+        <div class="line">
+          <div class="st"><i></i><span>JFK</span></div>
+          <div class="seg air"><span>AirTrain · 8,50 $</span></div>
+          <div class="st"><i></i><span>Jamaica</span></div>
+          <div class="seg e"><span><span class="bul b-ale">E</span> verso Manhattan</span></div>
+          <div class="st"><i></i><span>W 4 St</span></div>
+          <div class="seg f"><span><span class="bul b-orange">F</span> 1 fermata</span></div>
+          <div class="st home"><i></i><span>Broadway–Laf.</span></div>
+        </div>
+        <p class="src">Al cambio di W 4 St ci sono scale: occhio alle valigie. Al ritorno stesso giro al contrario, uscite entro le 17:30.</p>
+      </div>
+      <div class="always">
+        <div class="r-h"><b>Valido tutti i giorni</b></div>
+        <p><span class="tg ok">Whitney gratis</span> per chi ha 25 anni o meno</p>
+        <p class="src">Portate sempre tessera Bocconi e passaporto per gli sconti studenti.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="viaggio" aria-labelledby="h-viaggio">
+    <div class="sec-h"><h2 id="h-viaggio">Il vostro piano</h2><p>Si riempie da solo mentre votate.</p></div>
+    <div class="trip" id="trip"></div>
+  </section>
+
+  <section id="packs" hidden aria-labelledby="h-packs">
+    <div class="sec-h"><h2 id="h-packs">Pacchetti per zona</h2><p>Giri già pronti: cosa vedere, dove mangiare e le soste di passaggio, tutto vicino. Cliccate un posto per votarlo.</p></div>
+    <div class="packs" id="packs-list"></div>
+  </section>
+
+  <div class="bar" role="region" aria-label="Navigazione e filtri">
+    <div class="bar-row chips" id="nav"></div>
+    <div class="bar-row">
+      <input class="search" id="q" type="search" placeholder="Cerca un posto, un piatto, una zona…" aria-label="Cerca">
+      <div class="chips" id="filters" role="group" aria-label="Filtro">
+        <button type="button" class="chip" data-f="tutti" aria-pressed="true">Tutti</button>
+        <button type="button" class="chip" data-f="davotare" aria-pressed="false">Da votare</button>
+        <button type="button" class="chip" data-f="anna" aria-pressed="false">Tocca ad Anna</button>
+        <button type="button" class="chip" data-f="ale" aria-pressed="false">Tocca ad Ale</button>
+        <button type="button" class="chip" data-f="match" aria-pressed="false">Match</button>
+        <button type="button" class="chip" data-f="disaccordo" aria-pressed="false">Non d'accordo</button>
+        <button type="button" class="chip" data-f="scartati" aria-pressed="false">Scartati</button>
+      </div>
+      <div class="tally" aria-live="polite"><span>Match <b id="n-match">0</b></span><span>Votati <b id="n-votati">0</b>/<b id="n-tot">0</b></span><span class="save" id="save">Caricamento…</span></div>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+  <section id="best" data-grp="best" hidden aria-labelledby="h-best"><div class="grp-h"><h2 id="h-best">Chi dice cosa</h2></div><div class="sec-h"><p>Per ogni categoria, quale posto indicano come il migliore le diverse guide, dove sono d'accordo e dove no, e la scelta per voi.</p></div><div id="best-list"></div></section>
+  <section id="dj" data-grp="serate" hidden aria-labelledby="h-dj"><div class="grp-h"><h2 id="h-dj">Serate techno e house</h2></div><div class="sec-h"><p>I DJ più importanti in città dal 29 ottobre al 4 novembre, da Resident Advisor e dai siti dei club. Fred again.. e Guy Gerber non suonano a New York in quei giorni.</p></div><div id="dj-list" class="evs"></div></section>
+
+  <div class="notes">
+    <label for="nota">Altro da dirmi</label>
+    <textarea id="nota" placeholder="Es. gli zii abitano a Brooklyn, Anna vuole vedere Friends, niente musei lunedì…"></textarea>
+  </div>
+  <p class="credit">Foto da Wikimedia Commons e Openverse (licenze libere), controllate una per una. Dove non c'è una foto verificata trovate il link alle foto su Google Maps. Tempi da Bond St e prezzi indicativi; le recensioni sono riassunte con il link alla fonte.</p>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlg-t">
+  <div class="dlg-head">
+    <button type="button" class="btn" id="dlg-prev" aria-label="Posto precedente">←</button>
+    <h2 id="dlg-t"></h2>
+    <span class="pos" id="dlg-pos"></span>
+    <button type="button" class="btn" id="dlg-next" aria-label="Posto successivo">→</button>
+    <button type="button" class="btn" id="dlg-x">Chiudi</button>
+  </div>
+  <div class="dlg-grid">
+    <div class="gal">
+      <div class="big"><img id="dlg-big" alt=""><button type="button" class="nav l" id="ph-prev" aria-label="Foto precedente">‹</button><button type="button" class="nav r" id="ph-next" aria-label="Foto successiva">›</button></div>
+      <div class="thumbs" id="dlg-thumbs"></div>
+      <div class="cred" id="dlg-cred"></div>
+      <div id="dlg-map"></div>
+      <a class="maps" id="dlg-maps" href="#" target="_blank" rel="noopener">Vedi le foto su Google Maps</a>
+      <div id="dlg-perc" style="margin-top:14px"></div>
+    </div>
+    <div class="dlg-body">
+      <div><div id="dlg-stk"></div><p class="desc" id="dlg-desc"></p><div id="dlg-sconto"></div></div>
+      <div id="dlg-book"></div>
+      <div id="dlg-comm"></div>
+      <div id="dlg-menu"></div>
+      <div id="dlg-info"></div>
+      <div id="dlg-rev"></div>
+    </div>
+  </div>
+  <div class="dlg-votes" id="dlg-votes"></div>
+</dialog>
+
+<dialog id="pk-dlg" aria-labelledby="pk-t">
+  <div class="dlg-head"><h2 id="pk-t"></h2><button type="button" class="btn" id="pk-x">Chiudi</button></div>
+  <div class="pk-grid"><div class="mapbox big" id="pk-map"></div><div id="pk-side"></div></div>
+</dialog>
+
+<script>window.FB_EXPECTED = true;</script>
+<script>
+const S = [
+ {id:"downtown", t:"Downtown e Brooklyn", p:"Wall Street, il memoriale e i ponti. Si combinano bene nella stessa giornata.", items:[
+  ["fidi","Financial District e Wall Street","Borsa, Charging Bull, Fearless Girl. A due passi c'è 200 West Street, la sede di Goldman Sachs.","15 min di metro · gratis"],
+  ["memorial","Memoriale dell'11 settembre","Le due vasche dove c'erano le Torri, e accanto l'Oculus di Calatrava.","15 min · vasche gratis, museo circa 33 $"],
+  ["ferry","Staten Island Ferry","Il traghetto passa davanti alla Statua della Libertà e allo skyline. Andata e ritorno in un'ora.","15 min · gratis"],
+  ["bbridge","Brooklyn Bridge a piedi","Si attraversa da Manhattan a Brooklyn in 30-40 minuti, con lo skyline alle spalle.","8 min di metro all'ingresso · gratis"],
+  ["dumbo","DUMBO","Dall'altra parte del ponte: la foto del Manhattan Bridge su Washington Street e il parco sull'acqua.","dopo il ponte · gratis"],
+  ["williamsburg","Williamsburg","Brooklyn dei negozi vintage, dei locali e del Domino Park con vista su Manhattan.","25 min · mezza giornata"]]},
+ {id:"midtown", t:"Midtown", p:"I classici da cartolina. Times Square e il Broadway Theatre sono vicini: si abbinano bene alla domenica di Gatsby.", items:[
+  ["grandc","Grand Central","L'atrio con il soffitto stellato. A due isolati c'è 270 Park Avenue, la nuova sede di JPMorgan.","12 min con la 6 · gratis"],
+  ["rock","Rockefeller Center e Fifth Avenue","La piazza, St. Patrick's Cathedral e i negozi della Fifth Avenue.","15 min · gratis"],
+  ["times","Times Square","Meglio di sera. È a dieci minuti a piedi dal teatro di Gatsby.","15-20 min · gratis"],
+  ["cpark","Central Park","Bethesda Terrace, il Bow Bridge e il lago. A fine ottobre gli alberi sono gialli e rossi.","25 min · gratis"]]},
+ {id:"west", t:"West Side a piedi", p:"Una passeggiata unica dal Meatpacking a Hudson Yards.", items:[
+  ["highline","High Line","Il parco sopraelevato sulla vecchia ferrovia: due chilometri di passeggiata sopra le strade.","20 min · gratis"],
+  ["chelsea","Chelsea Market","Mercato coperto con banchi da mangiare: tacos, ramen, aragosta.","20 min · pranzo"],
+  ["littleisland","Little Island","Il parco su colonne sopra l'Hudson, al tramonto è il momento migliore.","20 min · gratis"],
+  ["vessel","Hudson Yards e Vessel","Il quartiere nuovo in fondo alla High Line. Da qui sale anche l'osservatorio Edge.","25 min · gratis da fuori"],
+  ["westvillage","West Village","Le strade più belle di Manhattan: Bleecker Street, i brownstone e il palazzo di Friends.","15 min a piedi · gratis"]]},
+ {id:"vicino", t:"Sotto casa", p:"Tutto a piedi da Bond Street, buono per le mezze giornate e per la mattina della partenza.", items:[
+  ["soho","SoHo","Le facciate in ghisa e i negozi. Comincia praticamente dalla porta di casa.","5 min a piedi"],
+  ["washsq","Washington Square Park","L'arco, i musicisti e gli studenti della NYU.","10 min a piedi"],
+  ["chinatown","Chinatown e Little Italy","Ravioli al vapore a pochi dollari, poi un cannolo su Mulberry Street.","15 min a piedi"]]},
+ {id:"uni", t:"Università", p:"Columbia e NYU, due mondi diversi: un campus chiuso con i cancelli e un'università sparsa nelle strade del Village.", items:[
+  ["columbia","Columbia University","Il campus della Ivy League a Morningside Heights: la Low Library con la cupola, la scalinata con l'Alma Mater e la Butler Library. Attenzione: dal 2024 il campus è chiuso al pubblico, si entra solo se uno studente o un docente vi registra come ospiti. Da fuori si vedono i cancelli su Broadway e la 116esima.","35 min di metro · serve un invito"],
+  ["nyu","NYU e Washington Square","NYU non ha un campus chiuso: i suoi palazzi con le bandiere viola sono intorno a Washington Square, a 10 minuti da casa. La Stern School of Business è al 44 West 4th Street. Le strade e il parco sono aperti a tutti, dentro gli edifici serve il tesserino.","10 min a piedi · gratis"]]},
+ {id:"vista", t:"Una vista dall'alto", p:"Ne basta una. Gli osservatori costano intorno ai 40-45 $ a testa; l'elicottero è un'altra cosa.", items:[
+  ["owo","One World Observatory","Dal 100° piano del grattacielo più alto d'America, a downtown. Per molti la vista più completa: tutta Manhattan, i ponti e la Statua della Libertà.","15 min · circa 45 $"],
+  ["summit","Summit One Vanderbilt","Stanze di specchi e vetro sopra Grand Central. La più scenografica.","12 min · circa 45 $"],
+  ["totr","Top of the Rock","La vista più classica: davanti l'Empire State, dietro tutto Central Park.","15 min · circa 40 $"],
+  ["heli","Giro in elicottero","12-15 minuti sopra Manhattan e la Statua della Libertà. Dal molo di Downtown circa 250-290 $ a testa; con FlyNYON a porte aperte, dal New Jersey, 149 $ tra le 10 e le 14.","da 149 $ a testa"]]},
+ {id:"musei", t:"Musei", p:"Uno è abbastanza per questo viaggio. Il MoMA è a due isolati dal teatro di domenica.", items:[
+  ["met","The Met","Uno dei musei più grandi al mondo, sul bordo di Central Park.","25 min · circa 30 $"],
+  ["moma","MoMA","Van Gogh, Monet, Warhol. Due ore bastano.","15 min · circa 30 $"],
+  ["whitney","Whitney","Arte americana e terrazze sull'Hudson, proprio dove parte la High Line.","20 min · circa 30 $"]]},
+ {id:"pastrami", t:"Mangiare: pastrami", p:"Il famoso e le alternative con meno fila.", items:[
+  ["katz","Katz's Delicatessen","Il più famoso: pastrami tagliato a mano in una sala enorme. Fila quasi sempre.","12 min a piedi"],
+  ["deli2nd","2nd Ave Deli","Deli ebraica storica, più tranquilla di Katz's: pastrami e zuppa di matzo.","15 min di metro"],
+  ["sarges","Sarge's Deli","Deli di quartiere aperta giorno e notte, porzioni enormi e pochi turisti.","15 min di metro"],
+  ["pastramiqueen","Pastrami Queen","Piccolissima, quasi solo pastrami: per molti newyorkesi è la migliore.","25 min di metro"]]},
+ {id:"pizza", t:"Mangiare: pizza", p:"Pizza americana, non italiana: la fetta newyorkese e la pizza a carbone.", items:[
+  ["joes","Joe's Pizza","La fetta classica, si mangia in piedi.","15 min a piedi"],
+  ["princest","Prince Street Pizza","La fetta quadrata con i pepperoni a coppetta. È a 5 minuti da casa.","5 min a piedi"],
+  ["johns","John's of Bleecker Street","Pizzeria del 1929 con il forno a carbone: solo pizze intere, sottili e croccanti, nei tavoli di legno incisi dai clienti. La New York di una volta.","12 min a piedi · niente fette"],
+  ["scarrs","Scarr's Pizza","Fette con farina macinata in casa, in un locale anni '90 al Lower East Side.","15 min a piedi"]]},
+ {id:"bagel", t:"Mangiare: bagel", p:"La colazione newyorkese per eccellenza.", items:[
+  ["russ","Russ & Daughters","Bagel con salmone affumicato e cream cheese, dal 1914.","10 min a piedi"],
+  ["essa","Ess-a-Bagel","Bagel enormi con ripieni abbondanti, un'istituzione di Midtown.","20 min di metro"],
+  ["tompkins","Tompkins Square Bagels","Bagel di quartiere nell'East Village, con decine di cream cheese diversi.","12 min a piedi"]]},
+ {id:"brunch", t:"Mangiare: colazione e brunch tipici", p:"La colazione americana vera: pancake, diner, uova e caffè lungo.", items:[
+  ["clintonst","Clinton St. Baking Company","I pancake ai mirtilli con il burro d'acero caldo, per molti i migliori di New York. Nel weekend si aspetta da una a due ore: meglio un giorno feriale.","10 min a piedi · fila nel weekend"],
+  ["veselka","Veselka","Il diner ucraino dell'East Village, aperto dal 1954: colazione, pierogi e borscht in un posto che è un pezzo di storia del quartiere.","8 min a piedi"],
+  ["goldendiner","Golden Diner","Diner di Chinatown che mescola la colazione americana con sapori asiatici, famoso per i pancake al burro e miele.","15 min a piedi · orari da verificare"],
+  ["jackswife","Jack's Wife Freda","Brunch mediterraneo amatissimo, famoso per la shakshuka verde.","8 min a piedi"],
+  ["sadelles","Sadelle's","Il brunch con la torre di bagel e salmone, molto scenografico.","8 min a piedi"]]},
+ {id:"dolci", t:"Mangiare: dolci", p:"Per una pausa tra una camminata e l'altra.", items:[
+  ["levain","Levain Bakery","I cookie enormi, morbidi dentro. C'è una sede a NoHo, su Lafayette Street, a 5 minuti da casa.","5 min a piedi"],
+  ["ansel","Dominique Ansel","La pasticceria di SoHo che ha inventato il cronut.","8 min a piedi"],
+  ["magnolia","Magnolia Bakery","Cupcake e banana pudding, famosi grazie a Sex and the City.","15 min a piedi"]]},
+ {id:"cinese", t:"Mangiare: dumpling e cinese", p:"A Chinatown, a un quarto d'ora a piedi.", items:[
+  ["nomwah","Nom Wah Tea Parlor","La sala da tè più antica di Chinatown, dim sum dal 1920.","15 min a piedi"],
+  ["joesshanghai","Joe's Shanghai","I soup dumplings con il brodo dentro, da mangiare col cucchiaio.","15 min a piedi"],
+  ["xian","Xi'an Famous Foods","Noodles tirati a mano e piccanti, veloce ed economico. Andate alla sede di Chinatown, 45 Bayard St.","15 min a piedi · si mangia in 20 minuti"]]},
+ {id:"burger", t:"Mangiare: burger", p:"Dal leggendario al semplice.", items:[
+  ["sipguzzle","Sip & Guzzle","Il burger di wagyu A5 Miyazaki votato miglior burger del Nord America. Ne fanno solo 12 a sera, dalle 16: spesso finiscono in pochi minuti, quindi bisogna essere lì all'apertura.","15 min a piedi · 35 $ · solo 12 a sera"],
+  ["burgerjoint","Burger Joint","Il burger nascosto: si entra nella hall di un hotel elegante sulla 56esima e dietro una tenda c'è un locale da fast food con le pareti scritte. È a tre isolati dal teatro di Gatsby, perfetto per domenica sera.","25 min · solo senza prenotazione"],
+  ["minetta","Minetta Tavern","Il Black Label Burger in una taverna storica del Village. Caro, ma è il più famoso.","12 min a piedi · prenotare"],
+  ["cornerbistro","Corner Bistro","Bar del West Village con burger semplice e birra a prezzi bassi.","15 min a piedi"],
+  ["burger7","7th Street Burger","Smash burger da fast food fatto bene, nell'East Village.","10 min a piedi"]]},
+ {id:"cena", t:"Mangiare: cena speciale", p:"Per una sera da coppia, niente italiano: steakhouse storiche e locali solo newyorkesi.", items:[
+  ["polobar","The Polo Bar","Il ristorante di Ralph Lauren, legno scuro, quadri di cavalli e il burger più famoso di Midtown. Si prenota solo per telefono, 30 giorni prima alle 10: per le vostre date resta solo chiamare il giorno stesso verso le 16 per le cancellazioni. Dress code elegante, niente scarpe da ginnastica né felpe.","20 min di metro · burger 35-40 $ · difficilissimo"],
+  ["keens","Keens Steakhouse","La steakhouse del 1885, con oltre 50.000 pipe di terracotta appese al soffitto. Si viene per la costata di montone, il piatto storico. Giacca consigliata.","20 min di metro · prenotare"]]},
+ {id:"halloween", t:"Halloween: da non perdere", p:"Sabato 31 è Halloween. Per feste, case stregate e zucche i biglietti si comprano prima: finiscono.", items:[
+  ["parade","Parata di Halloween","La parata più grande del mondo: migliaia di persone in costume sulla Sixth Avenue, dalle 19 alle 23 circa. Il tratto più pieno è tra Bleecker e la 14esima.","10 min a piedi · gratis"],
+  ["w69","West 69th Street","La via dell'Upper West Side dove ogni casa si trasforma: scheletri, ragni giganti, streghe sulle scale. Il 31 dalle 18 alle 20 c'è la festa di strada.","25 min · gratis","uws"],
+  ["bloodmanor","Blood Manor","La casa stregata più famosa di Manhattan, con attori che ti inseguono al buio. È a Tribeca, dieci minuti da casa. Per voi è aperta da giovedì 29 a domenica 1, poi chiude.","10 min · da 50 $ · fino a dom 1","haunted"],
+  ["blaze","Great Jack O'Lantern Blaze","Un percorso serale con migliaia di zucche intagliate e accese, in una tenuta storica sulla valle dell'Hudson. Un'ora di treno da Grand Central, ingresso a orario. Per voi le sere possibili sono da giovedì 29 a domenica 1.","1 h di treno · da 24 $ · fino a dom 1"],
+  ["feste","Feste in costume del 31","L'afterparty ufficiale della parata (Vampire Ball, a Industry City), Heaven & Hell all'Eden di Midtown, o Disco on the Hudson al Pier 36.","da 30 a 80 $ · prevendita","festa"],
+  ["houseofyes","House of Yes","Il locale più famoso per Halloween: performer, acrobati, tutti in costume. Tutta la settimana ha serate a tema.","30 min · Bushwick, Brooklyn"],
+  ["lebain","Le Bain","La pista sul tetto del The Standard, con la vista sull'Hudson. Spesso c'è fila. Per Halloween non hanno ancora annunciato niente; chiuso lunedì e martedì.","20 min · Meatpacking"]]},
+ {id:"gospel", t:"Gospel ad Harlem", p:"Si fa la domenica: per voi è domenica 1, dopo la notte di Halloween. Quella notte l'ora torna indietro, quindi dormite un'ora in più. Ad Harlem passa anche la maratona, ma la metro funziona.", items:[
+  ["abyssinian","Messa alla Abyssinian Baptist Church","La chiesa gospel più famosa di Harlem. La messa è alle 10, i visitatori entrano da un ingresso apposito e in ordine di arrivo: conviene essere in fila un'ora prima. Si resta per tutta la funzione, circa due ore e mezza, e niente foto.","35 min di metro · gratis, offerta libera"],
+  ["redrooster","Gospel brunch al Red Rooster","Brunch a buffet con un coro gospel dal vivo, nel ristorante di Marcus Samuelsson. Il turno principale è alle 13:15, si prenota su Resy e si riempie presto.","35 min di metro · 95 $ a testa"],
+  ["sylvias","Gospel brunch da Sylvia's","Il ristorante soul food più storico di Harlem, con musica gospel dal vivo la domenica dalle 12:30 alle 16. Più tradizionale e alla mano del Red Rooster.","35 min di metro · prezzo da verificare"]]},
+ {id:"induo", t:"In due", p:"Le cose più belle da fare insieme, dalla barca a remi al jazz.", items:[
+  ["barche","Barca a remi a Central Park","Si noleggia una barchetta al Boathouse e si rema sul lago, con i grattacieli dietro gli alberi gialli. Attenzione: le fonti non sono d'accordo sulla fine della stagione, potrebbe essere già chiusa. Da verificare prima di andare.","25 min · stagione da verificare"],
+  ["wollman","Pattinaggio al Wollman Rink","La pista di ghiaccio dentro Central Park, con lo skyline di Midtown davanti. Apre mercoledì 28, quindi c'è per tutto il viaggio.","25 min · da 16 a 40 $"],
+  ["schooner","Tramonto in barca a vela","Due ore su un veliero d'epoca sull'Hudson, al tramonto, passando davanti alla Statua della Libertà.","20 min · da circa 80 $","barca"],
+  ["tram","Funivia di Roosevelt Island","Una cabina sospesa sopra l'East River, tra i grattacieli. Costa quanto un biglietto della metro.","20 min · circa 3 $"],
+  ["gantry","Gantry Plaza al tramonto","Il parco sul fiume a Long Island City, con tutta Midtown davanti. Una delle viste più belle al tramonto, senza biglietto.","20 min · gratis"],
+  ["vanguard","Village Vanguard","Il jazz club più famoso del mondo, in una cantina del Village dal 1935. Concerti ogni sera.","15 min a piedi · biglietto"],
+  ["bemelmans","Bemelmans Bar","Il bar del Carlyle con il pianoforte dal vivo e le pareti dipinte a mano. Un cocktail elegante prima di cena.","25 min · cocktail cari"],
+  ["pdt","Please Don't Tell","Il bar segreto dell'East Village: si entra da una cabina telefonica dentro un negozio di hot dog.","10 min a piedi · prenotare"]]}
+];
+
+const GRP_OF = {downtown:"vedere", midtown:"vedere", west:"vedere", vicino:"vedere", uni:"vedere", vista:"vedere", musei:"vedere",
+  pastrami:"mangiare", pizza:"mangiare", bagel:"mangiare", brunch:"mangiare", cinese:"mangiare", burger:"mangiare", cena:"mangiare",
+  dolci:"dolci", halloween:"halloween", gospel:"gospel", induo:"induo"};
+const GUIDE_GRP = {"Classici":"vedere","Musei":"vedere","Quartieri e passeggiate":"vedere","Esperienze":"vedere","Insoliti":"vedere",
+  "Classici di New York da mangiare":"mangiare","Hot dog":"mangiare","Street food e mercati":"mangiare",
+  "Cinese a Chinatown":"mangiare","Burger dalle classifiche":"mangiare","Cookie":"dolci","Cinnamon roll":"dolci","Cheesecake":"dolci","Babka":"dolci","Black and white cookie":"dolci","Donut":"dolci","Croissant":"dolci"};
+const GROUPS = [["vedere","Da vedere"],["mangiare","Da mangiare"],["dolci","Dolci"],["halloween","Halloween"],["induo","In due"],["gospel","Gospel"]];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const ITEMS = {}, DATA = {};
+let SECTIONS = [];
+let SCONTI = {}, GAL = {}, PAR = {}, SEL = {}, CAP = {}, PERC = {}, MENU = {}, ZONE = {zone:[], mappa:{}};
+const VOTES = {}, COMM = {}, STK = {};
+let GEO = {}, MAP = null, PACKS = [], PREN = {};
+const COVER = {westvillage:"img-westvillage-v5.jpg", chelsea:"img-chelsea-v2.jpg", summit:"img-summit-g2.jpg", heli:"img-heli-o1.jpg"};           // id -> {ale, anna}
+let db = null, filter = "tutti", query = "", byZone = false, openId = null, order = [];
+
+function buildSections(guide){
+  SECTIONS = S.map(s => ({id:s.id, t:s.t, p:s.p, grp:GRP_OF[s.id]||"vedere", items:s.items.map(([k,t,d,m,im]) => ({k,t,d,m,img:"img-"+(im||k)+".jpg"}))}));
+  const cats = [];
+  for (const x of guide){ if (!cats.includes(x.categoria)) cats.push(x.categoria); }
+  for (const c of cats){
+    SECTIONS.push({id:"g-"+c.toLowerCase().replace(/[^a-z]+/g,"-"), t:"Dalle guide: "+c, p:"", grp:GUIDE_GRP[c]||"mangiare",
+      items: guide.filter(x => x.categoria === c).map(x => ({k:x.id, t:x.titolo, d:x.breve||"", m:x.meta||"", img:"img-"+x.id+".jpg"}))});
+  }
+  for (const s of SECTIONS) for (const it of s.items){ ITEMS[it.k] = Object.assign({sec:s.t, grp:s.grp}, it); }
+}
+
+function coverSet(k){
+  const l = SEL[k] ? SEL[k].slice() : [];
+  if (COVER[k]){ const i = l.indexOf(COVER[k]); if (i >= 0) l.splice(i, 1); l.unshift(COVER[k]); }
+  return l;
+}
+function cover(k){
+  if (COVER[k]) return COVER[k];
+  if (SEL[k]) return SEL[k][0] || "";
+  return ITEMS[k].img;
+}
+const ZC = {casa:[40.726,-73.995],village:[40.733,-74.003],eastles:[40.722,-73.986],chinatown:[40.716,-73.998],downtown:[40.707,-74.011],westside:[40.745,-74.005],midtown:[40.755,-73.982],uptown:[40.775,-73.968],harlem:[40.81,-73.948],brooklyn:[40.705,-73.96]};
+function zoneOf(k){
+  if (ZONE.mappa[k]) return ZONE.mappa[k];
+  const g = GEO[k]; if (!g || g.lat == null) return "";
+  let best = "fuori", bd = 3.5;
+  for (const z in ZC){ const d = hav(g, {lat: ZC[z][0], lng: ZC[z][1]}); if (d < bd){ bd = d; best = z; } }
+  return best;
+}
+function zoneName(z){ const o = ZONE.zone.find(x => x.id === z); return o ? o.t : ""; }
+
+function cardHTML(it){
+  const k = it.k, src = cover(k), mn = MENU[k], sc = SCONTI[k], z = zoneOf(k);
+  return `<article class="card" id="c-${esc(k)}" data-k="${esc(k)}">
+    <span class="badge" hidden>Match</span>${stickers(k)}
+    <button type="button" class="open" data-open="${esc(k)}" aria-label="Apri ${esc(it.t)}">
+      <div class="ph${coverSet(k).length >= 3 ? " mosaic" : ""}">${coverSet(k).length >= 3 ? coverSet(k).slice(0, 3).map((f, i) => `<img src="${esc(f)}" alt="${i ? "" : esc(it.t)}" loading="lazy" class="m${i}">`).join("") : src ? `<img src="${esc(src)}" alt="${esc(it.t)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'noimg',textContent:'Foto su Google Maps'}))">` : `<span class="noimg">Nessuna foto verificata · apri per vederle su Google Maps</span>`}<span class="more">Apri la scheda</span></div>
+    </button>
+    <div class="body">
+      <h3><button type="button" class="open" data-open="${esc(k)}">${esc(it.t)}</button></h3>
+      <p>${esc(it.d)}</p>
+      <div class="meta">${esc(it.m)}${z ? " · " + esc(zoneName(z).split(":")[0]) : ""}</div>
+      <div class="tags">${isPass(k) ? `<span class="pass">Di passaggio · 10-20 min</span>` : ""}<span class="cmn"></span>${mn && shortPrice(mn) ? `<span class="prezzo">${esc(shortPrice(mn))}</span>` : ""}${sc ? `<span class="sconto">${esc(sc.breve)}</span>` : ""}</div>
+      <div class="votes">${voteRow(k,"ale")}${voteRow(k,"anna")}</div>
+    </div>
+  </article>`;
+}
+const PASS_RX = /^(street-|hotdog-|cheesecake-|babka-|bianconero-|redgate-|donut|doughnut|homies|funnyface|losers|benjis|lappartement|librae|supermoon)/;
+const PASS_IDS = new Set(["maman","levain","ansel","magnolia","joes","princest","scarrs","russ","essa","tompkins","gf-mei-lai-wah","gf-yonah-schimmel","gf-mamouns","gf-taim","gf-blue-sky-deli","xian","w69","nyu","rock","times","littleisland","vessel"]);
+function isPass(k){ return PASS_RX.test(k) || PASS_IDS.has(k) || PACKS.some(p => p.tappe.some(t => t.id === k && t.r === "di passaggio")); }
+function bookSticker(k){
+  const b = PREN[k]; if (!b || !/difficile|impossibile/.test(b.livello || "")) return "";
+  const e = b.controllo && b.controllo.esito ? (/nessun posto/i.test(b.controllo.esito) ? "Controllato: niente posto" : /liber|:\s*\w{3}\s\d/i.test(b.controllo.esito) ? "Controllato: c'è posto" : "") : "";
+  return `<span class="sticker red"><b>${b.livello === "quasi impossibile" ? "Quasi impossibile prenotare" : "Prenotazione difficile"}</b>${e ? `<small>${esc(e)}</small>` : ""}</span>`;
+}
+function stickers(k){
+  const l = STK[k] || [], bs = bookSticker(k); if (!l.length && !bs) return "";
+  if (!l.length) return `<div class="stk">${bs}</div>`;
+  return `<div class="stk">${l.slice(0, 2).map(x => `<span class="sticker"><b>${esc(x.t)}</b><small>${esc(x.fonte)}${x.anno ? " " + esc(x.anno) : ""}</small></span>`).join("")}${l.length > 2 ? `<span class="sticker more2">+${l.length - 2}</span>` : ""}${bs}</div>`;
+}
+function voteRow(k, who){
+  const n = who === "ale" ? "Ale" : "Anna";
+  return `<div class="vrow" role="group" aria-label="Voto di ${n}">
+    <span class="bul b-${who}" title="${n}">${who === "ale" ? "Al" : "An"}</span>
+    <div class="seg3"><button type="button" data-v="${esc(k)}" data-who="${who}" data-k="si" aria-pressed="false">Sì</button><button type="button" data-v="${esc(k)}" data-who="${who}" data-k="forse" aria-pressed="false">Forse</button><button type="button" data-v="${esc(k)}" data-who="${who}" data-k="no" aria-pressed="false">No</button></div>
+  </div>`;
+}
+function shortPrice(mn){
+  const m = (mn.fascia || "").match(/\d+\s*[-–]\s*\d+\s*\$|\d+\s*\$/);
+  const p = m ? m[0].replace(/\s*[-–]\s*/, "–").replace(/\s*\$/, " $") + " a testa" : "";
+  return [mn.simbolo, p].filter(Boolean).join(" · ");
+}
+
+function render(){
+  const root = document.getElementById("sections");
+  let html = "";
+  if (!byZone){
+    for (const [g, label] of GROUPS){
+      const secs = SECTIONS.filter(s => s.grp === g);
+      if (!secs.length) continue;
+      html += `<div class="grp-h" id="grp-${g}" data-grp="${g}"><h2>${esc(label)}</h2></div>`;
+      for (const s of secs) html += `<section data-sec="${esc(s.id)}"><div class="sec-h"><h2>${esc(s.t)}</h2>${s.p ? `<p>${esc(s.p)}</p>` : ""}</div><div class="grid">${s.items.map(cardHTML).join("")}</div></section>`;
+    }
+  } else {
+    for (const z of ZONE.zone){
+      const its = Object.values(ITEMS).filter(it => zoneOf(it.k) === z.id);
+      if (!its.length) continue;
+      html += `<div class="grp-h" id="zona-${z.id}" data-grp="zona-${z.id}"><h2>${esc(z.t)}</h2></div><section><div class="sec-h"><p>${esc(z.p)}</p></div><div class="grid">${its.map(cardHTML).join("")}</div></section>`;
+    }
+    const rest = Object.values(ITEMS).filter(it => !zoneOf(it.k));
+    if (rest.length) html += `<div class="grp-h"><h2>Zona da definire</h2></div><section><div class="grid">${rest.map(cardHTML).join("")}</div></section>`;
+  }
+  root.innerHTML = html;
+  renderNav();
+  paint();
+}
+
+function renderNav(){
+  const nav = document.getElementById("nav");
+  const links = byZone ? ZONE.zone.filter(z => document.getElementById("zona-"+z.id)).map(z => [`zona-${z.id}`, z.t.split(":")[0]])
+                       : GROUPS.filter(([g]) => document.getElementById("grp-"+g)).map(([g,l]) => [`grp-${g}`, l]);
+  links.unshift(["viaggio","Il nostro viaggio"]);
+  if (!document.getElementById("best").hidden) links.push(["best","Chi dice cosa"]);
+  if (!document.getElementById("dj").hidden) links.push(["dj","Serate techno"]);
+  nav.innerHTML = links.map(([id,l]) => `<button type="button" class="chip" data-go="${id}">${esc(l)}</button>`).join("") +
+    `<button type="button" class="chip tog" id="toggle-zone" aria-pressed="${byZone}">${byZone ? "Raggruppa per categoria" : "Raggruppa per zona"}</button>`;
+}
+
+function v(k){ return VOTES[k] || {ale:"", anna:""}; }
+function isMatch(k){ const x = v(k); return x.ale === "si" && x.anna === "si"; }
+function isDisagree(k){ const x = v(k); return x.ale && x.anna && x.ale !== x.anna; }
+function isRejected(k){ const x = v(k); return x.ale === "no" && x.anna === "no"; }
+function isPending(k){ const x = v(k); return !x.ale || !x.anna; }
+function passes(k){
+  const it = ITEMS[k]; if (!it) return false;
+  if (query){ const hay = (it.t + " " + it.d + " " + it.m + " " + it.sec + " " + zoneName(zoneOf(k))).toLowerCase(); if (!hay.includes(query)) return false; }
+  if (filter === "davotare") return isPending(k);
+  if (filter === "anna"){ const x = v(k); return !x.anna && (x.ale === "si" || x.ale === "forse"); }
+  if (filter === "ale"){ const x = v(k); return !x.ale && (x.anna === "si" || x.anna === "forse"); }
+  if (filter === "match") return isMatch(k);
+  if (filter === "disaccordo") return isDisagree(k);
+  if (filter === "scartati") return isRejected(k);
+  return true;
+}
+
+function paint(){
+  let nMatch = 0, nVot = 0, nTot = 0;
+  order = [];
+  document.querySelectorAll("#sections .card").forEach(card => {
+    const k = card.dataset.k, x = v(k);
+    nTot++; if (x.ale && x.anna) nVot++; if (isMatch(k)) nMatch++;
+    card.classList.toggle("match", isMatch(k));
+    card.classList.toggle("nono", isRejected(k));
+    card.querySelector(".badge").hidden = !isMatch(k);
+    const c = COMM[k] || {}, nc = (c.ale ? 1 : 0) + (c.anna ? 1 : 0);
+    card.querySelector(".cmn").textContent = nc ? (nc === 2 ? "2 commenti" : "1 commento") : "";
+    card.querySelectorAll("button[data-who]").forEach(b => b.setAttribute("aria-pressed", String(x[b.dataset.who] === b.dataset.k)));
+    const show = passes(k);
+    card.classList.toggle("hidden-by-filter", !show);
+    if (show) order.push(k);
+  });
+  document.querySelectorAll("#sections section").forEach(sec => {
+    const any = sec.querySelector(".card:not(.hidden-by-filter)");
+    sec.classList.toggle("hidden-by-filter", !any);
+  });
+  document.getElementById("n-match").textContent = nMatch;
+  document.getElementById("n-votati").textContent = nVot;
+  document.getElementById("n-tot").textContent = nTot;
+  renderTrip();
+  renderPacks();
+}
+
+function renderTrip(){
+  const all = Object.keys(ITEMS), N = all.length;
+  const nv = w => all.filter(k => v(k)[w]).length;
+  const matches = all.filter(isMatch);
+  const quasi = all.filter(k => { const x = v(k); return (x.ale === "si" && x.anna === "forse") || (x.ale === "forse" && x.anna === "si"); });
+  const wait = w => all.filter(k => { const x = v(k), o = w === "anna" ? "ale" : "anna"; return !x[w] && (x[o] === "si" || x[o] === "forse"); }).length;
+  const name = w => w === "ale" ? "Ale" : "Anna";
+  const prog = w => `<div class="sc"><span class="bul b-${w}">${w === "ale" ? "Al" : "An"}</span><div><b>${name(w)}</b><div class="pb"><i style="width:${Math.round(nv(w) / N * 100)}%;background:var(--${w})"></i></div><small>${nv(w)} votati su ${N}</small></div></div>`;
+  const mini = k => { const c = cover(k); return `<button type="button" class="mini${isMatch(k) ? " m" : ""}" data-open="${esc(k)}">${c ? `<img src="${esc(c)}" alt="" loading="lazy">` : `<span class="ph0"></span>`}<span>${esc(ITEMS[k].t)}</span></button>`; };
+  const zones = list => {
+    const g = {};
+    for (const k of list){ const z = zoneOf(k) || "altro"; (g[z] = g[z] || []).push(k); }
+    return ZONE.zone.filter(z => g[z.id]).map(z => [z.t.split(":")[0], g[z.id]]).concat(g.altro ? [["Altro", g.altro]] : [])
+      .map(([t, ks]) => `<div class="plan-g"><h3>${esc(t)}</h3><div class="minis">${ks.map(mini).join("")}</div></div>`).join("");
+  };
+  let html = `<div class="score">${prog("ale")}${prog("anna")}<div class="sc m"><span class="big">${matches.length}</span><div><b>match</b><br><small>${quasi.length} quasi (un Sì e un Forse)</small></div></div></div>`;
+  for (const w of ["anna", "ale"]){
+    const n = wait(w);
+    if (n) html += `<div class="nudge"><span><b>${n}</b> posti piacciono a ${name(w === "anna" ? "ale" : "anna")} e aspettano il voto di ${name(w)}</span><button type="button" class="chip" data-setf="${w}">Mostra solo questi</button></div>`;
+  }
+  html += matches.length ? `<div class="zones">${zones(matches)}</div>`
+    : `<p class="empty">Ancora nessun match: appena dite Sì tutti e due su un posto compare qui, nella sua zona.</p>`;
+  if (quasi.length) html += `<div class="plan-g"><h3>Quasi: un Sì e un Forse</h3><div class="minis">${quasi.map(mini).join("")}</div></div>`;
+  document.getElementById("trip").innerHTML = html;
+}
+
+function status(t){ document.getElementById("save").textContent = t; }
+const writing = {};
+async function vote(k, who, val){
+  const cur = Object.assign({ale:"", anna:""}, VOTES[k]);
+  cur[who] = cur[who] === val ? "" : val;
+  VOTES[k] = cur;
+  paint(); if (openId === k) paintDialogVotes();
+  if (!db){ try { localStorage.setItem("ny-voti", JSON.stringify(VOTES)); status("Salvato su questo computer"); } catch(e){} return; }
+  status("Salvataggio…");
+  writing[k] = (writing[k] || Promise.resolve()).then(async () => {
+    const x = VOTES[k];
+    try {
+      if (!x.ale && !x.anna) await db.collection("scelte").doc(k).delete();
+      else await db.collection("scelte").doc(k).set({ale: x.ale || "", anna: x.anna || ""});
+      status("Voti salvati");
+    } catch(e){ status("Non salvato: riprova"); }
+  });
+}
+
+/* scheda aperta */
+const RX_EXT = /(esterno|storefront|exterior|facade|façade|entrance|outside|front|sign|awning|street view|building)/i;
+const RX_INT = /(interno|interior|inside|dining|counter|seating|room|kitchen|bar area|booth)/i;
+const RX_FOOD = /(pizza|slice|sandwich|pastrami|bagel|lox|burger|cookie|donut|doughnut|croissant|cake|cheesecake|babka|dumpling|noodle|pancake|roll|dish|plate|food|taco|dosa|waffle|pasta|hot ?dog|steak|chop|pierogi|cupcake|pudding|brunch|egg|cronut|piatto)/i;
+function rank(p){ const c = (p.credito||"") + " " + (p.file||""); if (RX_FOOD.test(c)) return 0; if (RX_EXT.test(c)) return 1; if (RX_INT.test(c)) return 2; return 1; }
+function sortPhotos(arr){ const seen = new Set(); return arr.filter(p => p && p.file && !seen.has(p.file) && seen.add(p.file)).map((p,i)=>({p,i,r:rank(p)})).sort((a,b)=> a.r-b.r || a.i-b.i).map(o=>o.p); }
+function norm(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
+function capWithPrice(k, cap){
+  if (!cap) return "";
+  const m = MENU[k]; if (!m || !m.da_ordinare) return cap;
+  const c = norm(cap); let best = null, score = 0;
+  for (const d of m.da_ordinare){ const w = norm(d.piatto).split(" ").filter(x => x.length > 2); const hit = w.filter(x => c.includes(x)).length; if (hit > score){ score = hit; best = d; } }
+  return best && score > 0 && best.prezzo ? `${cap} · ${best.prezzo}` : cap;
+}
+const li = arr => (arr||[]).map(x => `<li>${esc(x)}</li>`).join("");
+let photos = [], photoIdx = 0;
+function showPhoto(i){
+  if (!photos.length) return;
+  photoIdx = (i + photos.length) % photos.length;
+  const p = photos[photoIdx];
+  document.getElementById("dlg-big").src = p.file;
+  document.getElementById("dlg-cred").textContent = p.credito || "";
+  document.querySelectorAll("#dlg-thumbs button").forEach((b,j) => b.setAttribute("aria-current", String(j === photoIdx)));
+}
+function paintDialogVotes(){
+  const k = openId; if (!k) return;
+  document.getElementById("dlg-votes").innerHTML = voteRow(k,"ale") + voteRow(k,"anna") + `<span class="kbd">← → posto precedente/successivo · Esc chiude</span>`;
+  const x = v(k);
+  document.querySelectorAll("#dlg-votes button[data-who]").forEach(b => b.setAttribute("aria-pressed", String(x[b.dataset.who] === b.dataset.k)));
+}
+function fill(k){
+  const it = ITEMS[k], x = DATA[k];
+  document.getElementById("dlg-t").textContent = it.t;
+  const pos = order.indexOf(k);
+  document.getElementById("dlg-pos").textContent = pos >= 0 ? `${pos+1}/${order.length}` : "";
+  photos = SEL[k] ? SEL[k].slice(0, 7).map(f => ({file:f, credito: capWithPrice(k, (CAP[k]||{})[f])}))
+                  : sortPhotos([{file: it.img, credito: ""}].concat(GAL[k] || [], (x && x.foto) || []).slice(0, 7));
+  if (COVER[k]){ const c = COVER[k], i = photos.findIndex(p => p.file === c); const p = i >= 0 ? photos.splice(i, 1)[0] : {file:c, credito:""}; photos.unshift(p); }
+  const th = document.getElementById("dlg-thumbs");
+  th.innerHTML = photos.map((p,i) => `<button type="button" data-i="${i}" aria-label="Foto ${i+1}"><img src="${esc(p.file)}" alt="" loading="lazy"></button>`).join("");
+  const big = document.getElementById("dlg-big");
+  const many = photos.length > 1;
+  document.getElementById("ph-prev").hidden = !many; document.getElementById("ph-next").hidden = !many;
+  if (!photos.length){ big.hidden = true; big.removeAttribute("src"); document.getElementById("dlg-cred").textContent = "Nessuna foto verificata di questo posto: guardate quelle vere su Google Maps."; }
+  else { big.hidden = false; big.alt = it.t; showPhoto(0); }
+  document.getElementById("dlg-map").innerHTML = mapBox(k);
+  document.getElementById("dlg-maps").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(it.t + " New York");
+  document.getElementById("dlg-desc").textContent = (x && x.descrizione) || it.d;
+  const sc = SCONTI[k];
+  const sl = STK[k] || [];
+  document.getElementById("dlg-stk").innerHTML = sl.length ? `<div class="stk-l">${sl.map(x => `<span class="sticker"><b>${esc(x.t)}</b><small>${x.link && /^https?:/.test(x.link) ? `<a href="${esc(x.link)}" target="_blank" rel="noopener">${esc(x.fonte)}</a>` : esc(x.fonte)}${x.anno ? " " + esc(x.anno) : ""}</small></span>`).join("")}</div>` : "";
+  const bk = PREN[k];
+  document.getElementById("dlg-book").innerHTML = bk ? `<div class="book lv-${esc((bk.livello || "").replace(/\s+/g, "-"))}"><h4>Prenotare</h4>
+      <p><b>${esc(bk.livello || "")}</b>${bk.piattaforma && bk.piattaforma !== "nessuna" ? ` · ${esc(bk.piattaforma)}` : ""}${bk.regola ? ` · ${esc(bk.regola)}` : ""}</p>
+      ${bk.controllo ? `<p class="chk"><b>Posti per le nostre date</b> (controllato ${esc(bk.controllo.quando || "")}): ${esc(bk.controllo.esito || "")}</p>` : ""}
+      ${bk.consiglio ? `<p class="src">${esc(bk.consiglio)}</p>` : ""}
+      ${bk.link && /^https?:/.test(bk.link) ? `<a class="maps" href="${esc(bk.link)}" target="_blank" rel="noopener">Pagina per prenotare</a>` : ""}</div>` : "";
+  document.getElementById("dlg-sconto").innerHTML = sc ? `<p><span class="sconto">${esc(sc.breve)}</span></p><p class="src">${esc(sc.dettaglio||"")}</p>` : "";
+  const pc = PERC[k];
+  document.getElementById("dlg-perc").innerHTML = pc ? `<h4 style="font:700 13px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">${esc(pc.titolo)}</h4><ol class="perc">${pc.tappe.map(([t,d]) => `<li><strong>${esc(t)}</strong> · ${esc(d)}</li>`).join("")}</ol>${pc.nota?`<p class="src">${esc(pc.nota)}</p>`:""}` : "";
+  const mn = MENU[k];
+  const z = zoneOf(k);
+  const near = nearby(k, 1.3);
+  const packs = PACKS.filter(p => p.tappe.some(t => t.id === k) || p.alt.includes(k));
+  const nearHTML = (packs.length ? `<div><h4>Nei pacchetti</h4><p>${packs.map(p => `<button type="button" class="chip" data-pack="${esc(p.id)}" style="margin:0 6px 6px 0">${esc(p.t)}</button>`).join("")}</p></div>` : "")
+    + (near.length ? `<div><h4>Vicino, a piedi</h4><p class="src">Si possono fare nella stessa uscita.</p><p>${near.slice(0,14).map(([o,d]) => `<button type="button" class="chip" data-jump="${esc(o)}" style="margin:0 6px 6px 0">${isMatch(o)?"✓ ":""}${esc(ITEMS[o].t)} <span class="src">${walk(d)}</span></button>`).join("")}</p></div>` : "");
+  document.getElementById("dlg-menu").innerHTML = (mn ? `<div><h4>Menu e prezzi</h4>
+      <p class="voto">${esc((mn.simbolo?mn.simbolo+" · ":"")+(mn.fascia||""))}</p>
+      ${(mn.da_ordinare||[]).length?`<table class="menu"><tbody>${mn.da_ordinare.map(d=>`<tr><td>${esc(d.piatto||"")}${d.nota?`<div class="src">${esc(d.nota)}</div>`:""}</td><td class="pz">${esc(d.prezzo||"")}</td></tr>`).join("")}</tbody></table>`:""}
+      ${mn.ordine_per_due?`<p><strong>In due:</strong> ${esc(mn.ordine_per_due)}</p>`:""}
+      ${mn.per_noi?`<p><strong>Per noi:</strong> ${esc(mn.per_noi)}</p>`:""}
+      <p class="src">${mn.menu_url?`<a href="${esc(mn.menu_url)}" target="_blank" rel="noopener">Menu completo</a> · `:""}${esc(mn.fonte_prezzi?("Prezzi: "+mn.fonte_prezzi):"")}</p></div>` : "") + nearHTML;
+  const info = x && x.info;
+  document.getElementById("dlg-info").innerHTML = info ? `<h4>Info pratiche</h4><dl class="facts">
+      ${info.indirizzo?`<dt>Dove</dt><dd>${esc(info.indirizzo)}</dd>`:""}
+      ${info.orari?`<dt>Orari</dt><dd>${esc(info.orari)}</dd>`:""}
+      ${info.prezzo?`<dt>Prezzo</dt><dd>${esc(info.prezzo)}</dd>`:""}
+      ${info.prenotazione?`<dt>Prenotare</dt><dd>${esc(info.prenotazione)}</dd>`:""}
+      ${info.sito && /^https?:/.test(info.sito)?`<dt>Sito</dt><dd><a href="${esc(info.sito)}" target="_blank" rel="noopener">${esc(info.sito.replace(/^https?:\/\//,""))}</a></dd>`:""}
+    </dl>` : `<p class="pending">${esc(it.m)}</p>`;
+  const r = x && x.recensioni;
+  const par = PAR[k] || (x && x.paragone) ? `<p><strong>Rispetto agli altri:</strong> ${esc(PAR[k] || x.paragone)}</p>` : "";
+  document.getElementById("dlg-rev").innerHTML = (r || par) ? `<h4>Cosa dicono, in breve</h4>${par}
+      ${r && r.voto?`<p class="voto">${esc(r.voto)}</p>`:""}
+      ${r ? `<div class="rev"><div><strong>Piace</strong><ul>${li(r.pro)}</ul></div><div><strong>Non piace</strong><ul>${li(r.contro)}</ul></div></div>
+      ${r.consiglio?`<p><strong>Consiglio:</strong> ${esc(r.consiglio)}</p>`:""}
+      ${(r.fonti||[]).length?`<p class="src">Fonti: ${r.fonti.filter(u=>/^https?:/.test(u)).map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${i+1}</a>`).join(" · ")}</p>`:""}` : ""}` : "";
+  const cm = COMM[k] || {};
+  document.getElementById("dlg-comm").innerHTML = `<h4>Commenti</h4>` + ["ale","anna"].map(w => `<label class="cm"><span class="bul b-${w}">${w === "ale" ? "Al" : "An"}</span><textarea data-cm="${w}" placeholder="Cosa ne pensa ${w === "ale" ? "Ale" : "Anna"}…"></textarea></label>`).join("");
+  document.querySelectorAll("#dlg-comm textarea").forEach(t => { t.value = cm[t.dataset.cm] || ""; });
+  paintDialogVotes();
+  document.querySelector("#dlg .dlg-grid").scrollIntoView({block:"start"});
+}
+const dlg = document.getElementById("dlg");
+function openDetail(k){ if (!ITEMS[k]) return; openId = k; fill(k); if (!dlg.open) dlg.showModal(); }
+function step(d){
+  if (!openId) return;
+  const list = order.includes(openId) ? order : Object.keys(ITEMS);
+  const i = list.indexOf(openId);
+  openDetail(list[(i + d + list.length) % list.length]);
+}
+
+/* mappa */
+function hav(a, b){ const R = 6371, r = Math.PI / 180, dl = (b.lat - a.lat) * r, dg = (b.lng - a.lng) * r; const x = Math.sin(dl/2)**2 + Math.cos(a.lat*r) * Math.cos(b.lat*r) * Math.sin(dg/2)**2; return 2 * R * Math.asin(Math.sqrt(x)); }
+function walk(km){ const m = Math.round(km * 1.25 / 5 * 60); return m < 60 ? `${Math.max(2, m)} min` : `${(m/60).toFixed(1).replace(".", ",")} h`; }
+function nearby(k, km){
+  const g = GEO[k]; if (!g || g.lat == null) return [];
+  return Object.keys(ITEMS).filter(o => o !== k && GEO[o] && GEO[o].lat != null).map(o => [o, hav(g, GEO[o])]).filter(([,d]) => d <= km).sort((a,b) => a[1] - b[1]);
+}
+function px(g){
+  const n = 2 ** MAP.z, r = g.lat * Math.PI / 180;
+  return [((g.lng + 180) / 360 * n - MAP.x0) * 256, ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n - MAP.y0) * 256];
+}
+function inMap(p){ return p[0] >= 0 && p[1] >= 0 && p[0] < MAP.w && p[1] < MAP.h; }
+function dotClass(o){ return isMatch(o) ? "m" : (v(o).ale === "si" || v(o).anna === "si") ? "s" : ""; }
+function mapBox(k){
+  const g = GEO[k];
+  if (!MAP || !g || g.lat == null) return "";
+  const c = px(g), casa = GEO._casa;
+  if (!inMap(c)) return `<p class="src">Fuori dalla mappa: ${walk(hav(casa, g))} a piedi da casa, meglio in metro.</p>`;
+  const near = nearby(k, 1.3), labels = new Set(near.slice(0, 10).map(x => x[0]));
+  const dots = Object.keys(ITEMS).filter(o => o !== k && GEO[o] && GEO[o].lat != null).map(o => { const q = px(GEO[o]); return inMap(q) ? `<button type="button" class="mk ${dotClass(o)}${labels.has(o) ? " lb" : ""}" style="left:${q[0]}px;top:${q[1]}px" data-jump="${esc(o)}" title="${esc(ITEMS[o].t)}"><i></i><span>${esc(ITEMS[o].t)}</span></button>` : ""; }).join("");
+  const h = px(casa), dk = hav(casa, g);
+  return `<div class="mapbox" data-s="1"><div class="mapin" style="--cx:${c[0]}px;--cy:${c[1]}px;width:${MAP.w}px;height:${MAP.h}px">
+      ${dots}
+      <span class="mk home" style="left:${h[0]}px;top:${h[1]}px"><i></i><span>Casa</span></span>
+      <span class="mk me" style="left:${c[0]}px;top:${c[1]}px"><i></i><span>${esc(ITEMS[k].t)}</span></span>
+    </div>
+    <div class="mapctl"><button type="button" data-zoom="1" aria-label="Avvicina">+</button><button type="button" data-zoom="-1" aria-label="Allontana">−</button></div>
+    <div class="mapnote">Casa: ${dk < 0.15 ? "qui sotto" : walk(dk) + " a piedi"} · ● match · ● piace a uno</div>
+    <div class="mapcred">© OpenStreetMap</div></div>`;
+}
+const ZOOMS = [0.35, 0.6, 1];
+function zoomMap(box, d){
+  const i = Math.max(0, Math.min(ZOOMS.length - 1, ZOOMS.indexOf(+box.dataset.s) + d));
+  box.dataset.s = ZOOMS[i]; box.style.setProperty("--s", ZOOMS[i]);
+}
+
+/* pacchetti */
+function packHTML(p){
+  const stops = p.tappe.filter(t => ITEMS[t.id]);
+  const yes = stops.filter(t => v(t.id).ale === "si" || v(t.id).anna === "si").length;
+  const imgs = stops.map(t => cover(t.id)).filter(Boolean).slice(0, 4);
+  return `<article class="pk">
+    <div class="pk-strip">${imgs.map(c => `<img src="${esc(c)}" alt="" loading="lazy">`).join("")}</div>
+    <div class="pk-b">
+      <div class="pk-z">${esc(zoneName(p.zona).split(":")[0])} · ${esc(p.quando)} · ${esc(p.durata)}</div>
+      <h3>${esc(p.t)}</h3>
+      <p>${esc(p.p)}</p>
+      <ol class="pk-t">${stops.map(t => `<li class="r-${esc(t.r.replace(/\s+/g, "-"))}"><span class="r">${esc(t.r)}</span><button type="button" data-open="${esc(t.id)}">${esc(ITEMS[t.id].t)}</button>${isMatch(t.id) ? `<span class="okm">match</span>` : ""}</li>`).join("")}</ol>
+      ${p.alt.filter(a => ITEMS[a]).length ? `<p class="src">In alternativa: ${p.alt.filter(a => ITEMS[a]).map(a => `<button type="button" class="lnk" data-open="${esc(a)}">${esc(ITEMS[a].t)}</button>`).join(", ")}</p>` : ""}
+      <div class="pk-f"><span class="src">${yes}/${stops.length} tappe con almeno un Sì</span><button type="button" class="chip" data-pack="${esc(p.id)}">Vedi il giro sulla mappa</button></div>
+    </div></article>`;
+}
+function renderPacks(){
+  const el = document.getElementById("packs-list"); if (!el || !PACKS.length) return;
+  el.innerHTML = PACKS.map(packHTML).join("");
+  document.getElementById("packs").hidden = false;
+}
+const pdlg = document.getElementById("pk-dlg");
+function openPack(id){
+  const p = PACKS.find(x => x.id === id); if (!p) return;
+  if (dlg.open) dlg.close();
+  const stops = p.tappe.filter(t => ITEMS[t.id] && GEO[t.id] && GEO[t.id].lat != null);
+  document.getElementById("pk-t").textContent = p.t;
+  document.getElementById("pk-side").innerHTML = `<p class="src">${esc(zoneName(p.zona))} · ${esc(p.quando)} · ${esc(p.durata)}</p><p>${esc(p.p)}</p>
+    <ol class="pk-t big">${p.tappe.filter(t => ITEMS[t.id]).map((t, i) => {
+      const prev = i ? p.tappe[i-1] : null, d = prev && GEO[prev.id] && GEO[t.id] && GEO[t.id].lat != null && GEO[prev.id].lat != null ? hav(GEO[prev.id], GEO[t.id]) : null;
+      return `${d != null ? `<li class="leg">${walk(d)} a piedi</li>` : ""}<li><span class="num">${i+1}</span><div><span class="r">${esc(t.r)}</span> <button type="button" class="lnk" data-open="${esc(t.id)}">${esc(ITEMS[t.id].t)}</button><div class="src">${esc(t.n || "")}</div></div></li>`; }).join("")}</ol>`;
+  pdlg.showModal();
+  const box = document.getElementById("pk-map");
+  if (!MAP || stops.length < 1){ box.innerHTML = ""; return; }
+  const pts = stops.map(t => px(GEO[t.id]));
+  const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const W = box.clientWidth || 600, H = box.clientHeight || 500;
+  const sc = Math.min(1, (W - 90) / Math.max(1, Math.max(...xs) - Math.min(...xs)), (H - 90) / Math.max(1, Math.max(...ys) - Math.min(...ys)));
+  const h = px(GEO._casa);
+  box.style.setProperty("--s", sc);
+  box.innerHTML = `<div class="mapin" style="--cx:${cx}px;--cy:${cy}px;width:${MAP.w}px;height:${MAP.h}px">
+    <svg class="route" width="${MAP.w}" height="${MAP.h}"><polyline points="${pts.map(q => q.join(",")).join(" ")}" style="stroke-width:${6/sc}px"/></svg>
+    <span class="mk home" style="left:${h[0]}px;top:${h[1]}px"><i></i><span>Casa</span></span>
+    ${stops.map((t, i) => `<button type="button" class="mk stop lb" style="left:${pts[i][0]}px;top:${pts[i][1]}px" data-open="${esc(t.id)}"><i>${p.tappe.filter(x => ITEMS[x.id]).indexOf(t) + 1}</i><span>${esc(ITEMS[t.id].t)}</span></button>`).join("")}
+  </div><div class="mapcred">© OpenStreetMap</div>`;
+}
+document.getElementById("pk-x").addEventListener("click", () => pdlg.close());
+pdlg.addEventListener("click", e => { if (e.target === pdlg) pdlg.close(); });
+
+/* eventi */
+document.addEventListener("click", e => {
+  const vb = e.target.closest("button[data-who]"); if (vb){ vote(vb.dataset.v, vb.dataset.who, vb.dataset.k); return; }
+  const zb = e.target.closest("[data-zoom]"); if (zb){ zoomMap(zb.closest(".mapbox"), +zb.dataset.zoom); return; }
+  const pb = e.target.closest("[data-pack]"); if (pb){ openPack(pb.dataset.pack); return; }
+  const jb = e.target.closest("[data-jump]"); if (jb){ if (pdlg.open) pdlg.close(); openDetail(jb.dataset.jump); return; }
+  const ob = e.target.closest("[data-open]"); if (ob){ if (pdlg.open) pdlg.close(); openDetail(ob.dataset.open); return; }
+  const go = e.target.closest("[data-go]"); if (go){ document.getElementById(go.dataset.go)?.scrollIntoView({block:"start"}); return; }
+  if (e.target.closest("#toggle-zone")){ byZone = !byZone; render(); return; }
+  const sf = e.target.closest("[data-setf]");
+  if (sf){ filter = sf.dataset.setf; document.querySelectorAll("#filters [data-f]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.f === filter))); paint(); document.getElementById("sections").scrollIntoView({block:"start"}); return; }
+  const fb = e.target.closest("#filters [data-f]");
+  if (fb){ filter = fb.dataset.f; document.querySelectorAll("#filters [data-f]").forEach(b => b.setAttribute("aria-pressed", String(b === fb))); paint(); return; }
+  const tb = e.target.closest("#dlg-thumbs button"); if (tb){ showPhoto(+tb.dataset.i); return; }
+});
+document.getElementById("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); paint(); });
+document.getElementById("dlg-x").addEventListener("click", () => dlg.close());
+document.getElementById("dlg-prev").addEventListener("click", () => step(-1));
+document.getElementById("dlg-next").addEventListener("click", () => step(1));
+document.getElementById("ph-prev").addEventListener("click", () => showPhoto(photoIdx - 1));
+document.getElementById("ph-next").addEventListener("click", () => showPhoto(photoIdx + 1));
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+dlg.addEventListener("close", () => { openId = null; });
+document.addEventListener("keydown", e => {
+  if (!dlg.open) return;
+  if (e.key === "ArrowRight"){ e.preventDefault(); step(1); }
+  if (e.key === "ArrowLeft"){ e.preventDefault(); step(-1); }
+  if (e.key === "ArrowDown"){ e.preventDefault(); showPhoto(photoIdx + 1); }
+  if (e.key === "ArrowUp"){ e.preventDefault(); showPhoto(photoIdx - 1); }
+});
+const cmTimer = {};
+document.getElementById("dlg-comm").addEventListener("input", e => {
+  const t = e.target.closest("textarea[data-cm]"); if (!t || !openId) return;
+  const k = openId, w = t.dataset.cm;
+  COMM[k] = Object.assign({ale:"", anna:""}, COMM[k], {[w]: t.value});
+  clearTimeout(cmTimer[k]);
+  cmTimer[k] = setTimeout(async () => {
+    paint();
+    if (!db){ try { localStorage.setItem("ny-commenti", JSON.stringify(COMM)); } catch(err){} return; }
+    try { await db.collection("commenti").doc(k).set({ale: COMM[k].ale || "", anna: COMM[k].anna || ""}); status("Commento salvato"); }
+    catch(err){ status("Commento non salvato"); }
+  }, 800);
+});
+let notaTimer = null;
+document.getElementById("nota").addEventListener("input", e => {
+  const testo = e.target.value; clearTimeout(notaTimer);
+  notaTimer = setTimeout(async () => { if (db){ try { await db.doc("note/ale").set({testo}); status("Nota salvata"); } catch(err){ status("Nota non salvata"); } } }, 900);
+});
+
+/* caricamento */
+let BUNDLE = null;
+async function j(f){
+  BUNDLE = BUNDLE || fetch("all.json").then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  return (await BUNDLE)[f] ?? null;
+}
+async function loadAll(){
+  const parts = await Promise.all(["data/g1.json","data/g2.json","data/g3.json","data/g4.json","data/g5.json"].map(j));
+  parts.forEach(p => (p||[]).forEach(x => { DATA[x.id] = x; }));
+  let guide = [];
+  for (const f of ["data/guide_cose.json","data/guide_cibo.json","data/guide_hotdog.json","data/guide_street.json","data/dolci_1.json","data/dolci_2.json","data/dolci_3.json","data/guide_chinatown.json","data/guide_burger.json"]){
+    const g = await j(f); if (g){ guide = guide.concat(g); g.forEach(x => { DATA[x.id] = x; if (x.paragone) PAR[x.id] = x.paragone; }); }
+  }
+  SCONTI = await j("data/sconti.json") || {};
+  Object.assign(PAR, await j("data/paragoni.json") || {});
+  PERC = await j("data/percorsi.json") || {};
+  ZONE = await j("data/zone.json") || ZONE;
+  GEO = await j("data/geo.json") || {}; PREN = await j("data/prenota.json") || {}; MAP = await j("data/map.json"); PACKS = await j("data/pacchetti.json") || [];
+  for (const f of ["data/sticker.json", "data/sticker_extra.json", "data/sticker_extra2.json"]){ const g = await j(f) || {}; for (const k in g) STK[k] = (STK[k] || []).concat(g[k]); }
+  for (let i=0;i<5;i++) Object.assign(MENU, await j(`data/menu_${i}.json`) || {});
+  Object.assign(MENU, await j("data/menu_cn.json") || {});
+  for (const i of [...Array(14).keys(), "cn"]){
+    const g = await j(`data/sel_${i}.json`); if (!g) continue;
+    for (const k in g){ const o = g[k].ordine || [], gen = (g[k].generiche || []).filter(f => !o.includes(f)); SEL[k] = o.concat(gen); CAP[k] = g[k].didascalie || {}; for (const f of gen) if (!CAP[k][f]) CAP[k][f] = "Foto indicativa del piatto, non del locale"; }
+  }
+  for (const f of ["data/gallerie.json","data/gallerie2.json","data/gallerie3.json","data/ov_0.json","data/ov_1.json","data/ov_2.json","data/ov_3.json","data/ov_5.json","data/ov_6.json","data/ov_extra.json","data/ov_extra2.json","data/ov_dolci23.json","data/ov_dolci1.json","data/ov_guide.json","data/ov_ei_0.json","data/ov_ei_1.json","data/ov_ei_2.json","data/ov_ei_3.json","data/ov_ei_4.json","data/ov_ei_5.json","data/ov_johns.json"]){
+    const g = await j(f); if (g) for (const k in g) GAL[k] = (GAL[k]||[]).concat(g[k]);
+  }
+  buildSections(guide);
+  render();
+  loadBest(); loadDJ();
+}
+async function loadBest(){
+  let all = [];
+  for (let i=0;i<4;i++) all = all.concat(await j(`data/best_${i}.json`) || []);
+  const ex = await j("data/best_extra.json") || {};
+  for (const c of all){ const e = ex[c.categoria]; if (e){ c.verdetti = (c.verdetti || []).concat(e.verdetti || []); for (const f of ["consenso","disaccordo","per_noi"]) if (e[f]) c[f] = e[f]; } }
+  if (!all.length) return;
+  document.getElementById("best-list").innerHTML = all.map(c => `
+    <details class="best"><summary><span class="bc">${esc(c.categoria)}</span><span class="bs">${esc(c.consenso)}</span></summary>
+      <div class="bt"><table class="menu"><tbody>${(c.verdetti||[]).map(x => `<tr><td><strong>${esc(x.fonte)}</strong>${x.anno?` <span class="src">${esc(x.anno)}</span>`:""}</td><td><strong>${esc(x.migliore)}</strong><div class="src">${esc(x.perche)}${x.link && /^https?:/.test(x.link)?` · <a href="${esc(x.link)}" target="_blank" rel="noopener">fonte</a>`:""}</div></td></tr>`).join("")}</tbody></table></div>
+      ${c.disaccordo?`<p><strong>Dove non sono d'accordo:</strong> ${esc(c.disaccordo)}</p>`:""}
+      ${c.per_noi?`<p><strong>Per noi:</strong> ${esc(c.per_noi)}</p>`:""}
+    </details>`).join("");
+  document.getElementById("best").hidden = false; renderNav();
+}
+async function loadDJ(){
+  const ev = await j("data/tech_eventi.json") || [];
+  if (!ev.length) return;
+  const val = x => Array.isArray(x) ? x.join(", ") : (x || "");
+  document.getElementById("dj-list").innerHTML = ev.map(e => `<article class="ev">
+      <div class="ev-when">${esc(val(e.quando))}</div><h3>${esc(val(e.titolo))}</h3>
+      ${e.artisti||e.ospiti?`<p><strong>${esc(val(e.artisti||e.ospiti))}</strong></p>`:""}
+      <p class="src">${esc(val(e.luogo))}</p><p>${esc(val(e.perche))}</p>
+      <p class="src">${esc(val(e.prezzo))}${e.accesso?" · "+esc(val(e.accesso)):""}</p>
+      ${/^https?:/.test(val(e.link))?`<a class="maps" href="${esc(val(e.link))}" target="_blank" rel="noopener">Biglietti e info</a>`:""}
+    </article>`).join("");
+  document.getElementById("dj").hidden = false; renderNav();
+}
+async function loadVotes(){
+  if (window.FB_EXPECTED && !window.FBDB) await new Promise(r => { window.addEventListener("fbready", r, {once: true}); setTimeout(r, 8000); });
+  try { db = window.FBDB || (window.claude ? await window.claude.use("db") : null); } catch(e){ db = null; }
+  if (db){
+    let first = true;
+    db.collection("scelte").onSnapshot(snap => {
+      for (const k in VOTES) delete VOTES[k];
+      snap.docs.forEach(d => { const x = d.data() || {}; VOTES[d.id] = {ale: x.ale ?? x.v ?? "", anna: x.anna ?? ""}; });
+      paint(); if (openId) paintDialogVotes();
+      status(first ? "I voti si salvano da soli" : "Aggiornato"); first = false;
+    }, () => status("Voti non caricati"));
+    db.collection("commenti").onSnapshot(snap => {
+      snap.docs.forEach(d => { COMM[d.id] = d.data() || {}; });
+      paint();
+      if (openId) document.querySelectorAll("#dlg-comm textarea").forEach(t => { if (document.activeElement !== t) t.value = (COMM[openId] || {})[t.dataset.cm] || ""; });
+    }, () => {});
+    try { const n = await db.doc("note/ale").get(); if (n.exists) document.getElementById("nota").value = n.data().testo || ""; } catch(e){}
+  } else {
+    try { Object.assign(VOTES, JSON.parse(localStorage.getItem("ny-voti") || "{}")); Object.assign(COMM, JSON.parse(localStorage.getItem("ny-commenti") || "{}")); } catch(e){}
+    status("Salvato su questo computer");
+  }
+  paint();
+}
+buildSections([]); render(); loadAll().then(loadVotes);
+
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore, collection, doc, onSnapshot, setDoc, deleteDoc, getDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const m = location.hash.match(/k=([A-Za-z0-9]+)/);
+let KEY = m ? m[1] : null;
+try { if (KEY) localStorage.setItem("ny-k", KEY); else KEY = localStorage.getItem("ny-k"); } catch(e){}
+if (KEY){
+  const fs = getFirestore(initializeApp({apiKey:"AIzaSyCYs-Ah8gM4JiSyEBeoHqKxy7zvfXmE7sE",authDomain:"ny-viaggio.firebaseapp.com",projectId:"ny-viaggio",storageBucket:"ny-viaggio.firebasestorage.app",messagingSenderId:"182662768902",appId:"1:182662768902:web:b4b06d8246b1a538641687"}));
+  const base = ["viaggi", KEY];
+  window.FBDB = {
+    collection: name => ({
+      onSnapshot: (next, err) => onSnapshot(collection(fs, ...base, name), s => next({docs: s.docs.map(d => ({id: d.id, data: () => d.data()}))}), err),
+      doc: id => ({ set: data => setDoc(doc(fs, ...base, name, id), data), delete: () => deleteDoc(doc(fs, ...base, name, id)) })
+    }),
+    doc: path => { const ref = doc(fs, ...base, ...path.split("/")); return { get: async () => { const s = await getDoc(ref); return {exists: s.exists(), data: () => s.data()}; }, set: data => setDoc(ref, data) }; }
+  };
+}
+window.dispatchEvent(new Event("fbready"));
+</script>
+</body></html>
