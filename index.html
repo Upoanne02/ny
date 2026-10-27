@@ -909,7 +909,8 @@ const S = [
   ["joes","Joe's Pizza","La fetta classica, si mangia in piedi.","15 min a piedi"],
   ["princest","Prince Street Pizza","La fetta quadrata con i pepperoni a coppetta. È a 5 minuti da casa.","5 min a piedi"],
   ["johns","John's of Bleecker Street","Pizzeria del 1929 con il forno a carbone: solo pizze intere, sottili e croccanti, nei tavoli di legno incisi dai clienti. La New York di una volta.","12 min a piedi · niente fette"],
-  ["scarrs","Scarr's Pizza","Fette con farina macinata in casa, in un locale anni '90 al Lower East Side.","15 min a piedi"]]},
+  ["scarrs","Scarr's Pizza","Fette con farina macinata in casa, in un locale anni '90 al Lower East Side.","15 min a piedi"],
+  ["lindustrie","L'industrie Pizzeria","La fetta più premiata di New York: per 50 Top Pizza la migliore degli Stati Uniti nel 2024, 2025 e 2026. Fetta newyorkese con impasto e ingredienti italiani, famosa quella con la burrata.","20 min a piedi · fette 5,25-7,50 $","lindustrie-w2"]]},
  {id:"bagel", t:"Mangiare: bagel", p:"La colazione newyorkese per eccellenza.", items:[
   ["russ","Russ & Daughters","Bagel con salmone affumicato e cream cheese, dal 1914.","10 min a piedi"],
   ["essa","Ess-a-Bagel","Bagel enormi con ripieni abbondanti, un'istituzione di Midtown.","20 min di metro"],
@@ -965,8 +966,9 @@ const GRP_OF = {downtown:"vedere", midtown:"vedere", west:"vedere", vicino:"vede
   dolci:"dolci", halloween:"halloween", gospel:"gospel", induo:"induo"};
 const GUIDE_GRP = {"Classici":"vedere","Musei":"vedere","Quartieri e passeggiate":"vedere","Esperienze":"vedere","Insoliti":"vedere",
   "Classici di New York da mangiare":"mangiare","Hot dog":"mangiare","Street food e mercati":"mangiare",
-  "Cinese":"mangiare","Cinese a Chinatown":"mangiare","Burger dalle classifiche":"mangiare","Cookie":"dolci","Cinnamon roll":"dolci","Cheesecake":"dolci","Babka":"dolci","Black and white cookie":"dolci","Donut":"dolci","Croissant":"dolci"};
-const GROUPS = [["vedere","Da vedere"],["mangiare","Da mangiare"],["dolci","Dolci"],["halloween","Halloween"],["induo","In due"],["gospel","Gospel"]];
+  "Cinese":"mangiare","Cinese a Chinatown":"mangiare","Burger dalle classifiche":"mangiare","Partite NBA":"sport","Cookie":"dolci","Cinnamon roll":"dolci","Cheesecake":"dolci","Babka":"dolci","Black and white cookie":"dolci","Donut":"dolci","Croissant":"dolci"};
+const GROUPS = [["vedere","Da vedere"],["mangiare","Da mangiare"],["dolci","Dolci"],["halloween","Halloween"],["induo","In due"],["sport","Sport"],["gospel","Gospel"]];
+const SEC_T = {"Partite NBA": "Partite NBA nei vostri giorni"};
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 const ITEMS = {}, DATA = {};
@@ -985,7 +987,7 @@ function buildSections(guide){
   const cats = [];
   for (const x of guide){ if (!cats.includes(x.categoria)) cats.push(x.categoria); }
   for (const c of cats){
-    SECTIONS.push({id:"g-"+c.toLowerCase().replace(/[^a-z]+/g,"-"), t:"Dalle guide: "+c, p:"", grp:GUIDE_GRP[c]||"mangiare",
+    SECTIONS.push({id:"g-"+c.toLowerCase().replace(/[^a-z]+/g,"-"), t:SEC_T[c] || "Dalle guide: "+c, p:c === "Partite NBA" ? "Prezzi indicativi dei biglietti, letti il 27/10 su Vivid Seats: cambiano ogni giorno." : "", grp:GUIDE_GRP[c]||"mangiare",
       items: guide.filter(x => x.categoria === c).map(x => ({k:x.id, t:x.titolo, d:x.breve||"", m:x.meta||"", img:"img-"+x.id+".jpg"}))});
   }
   for (const s of SECTIONS) for (const it of s.items){ ITEMS[it.k] = Object.assign({sec:s.t, grp:s.grp}, it); }
@@ -1372,7 +1374,7 @@ function zoomMap(box, d){
 function likes(k){ const x = v(k); return (x.ale === "si" || x.anna === "si") && x.ale !== "no" && x.anna !== "no"; }
 
 /* tipo di posto: serve per alternative coerenti, tempi e filtro del mazzo */
-const SERA_IDS = new Set(["vanguard","bemelmans","pdt","lebain","houseofyes","feste","parade","bloodmanor","sipguzzle","blaze"]);
+const SERA_IDS = new Set(["vanguard","bemelmans","pdt","lebain","houseofyes","feste","parade","bloodmanor","sipguzzle","blaze","nba-knicks-nets","nba-nets-pistons","nba-knicks-bulls"]);
 const MORNING_IDS = new Set(["russ","tompkins","essa","gf-barney-greengrass","gf-lexington-candy-shop","clintonst","goldendiner","jackswife","sadelles","sylvias","redrooster"]);
 function kindOf(k){
   const it = ITEMS[k]; if (!it) return "";
@@ -1431,7 +1433,7 @@ function effStops(p){
 }
 
 /* spostamenti: oltre 1,8 km si prende la metro */
-const LINE_ID = {williamsburg: "L da 1st Ave a Bedford Av", "gf-peter-luger": "L fino a Bedford Av, o J/M/Z fino a Marcy Av", houseofyes: "L fino a Jefferson St (o J)", feste: "", abyssinian: "2/3 fino a 135 St", sylvias: "2/3 fino a 125 St", redrooster: "2/3 fino a 125 St", columbia: "1 fino a 116 St", "g-cloisters": "A fino a 190 St", dumbo: "F fino a York St"};
+const LINE_ID = {williamsburg: "L da 1st Ave a Bedford Av", "gf-peter-luger": "L fino a Bedford Av, o J/M/Z fino a Marcy Av", houseofyes: "L fino a Jefferson St (o J)", feste: "", abyssinian: "2/3 fino a 135 St", sylvias: "2/3 fino a 125 St", redrooster: "2/3 fino a 125 St", columbia: "1 fino a 116 St", "g-cloisters": "A fino a 190 St", dumbo: "F fino a York St", "nba-knicks-nets": "F o M fino a 34 St–Herald Sq", "nba-knicks-bulls": "F o M fino a 34 St–Herald Sq", "nba-nets-pistons": "B o D fino ad Atlantic Av–Barclays Ctr", "g-alba-brooklyn-bridge": "6 da Bleecker St fino a Brooklyn Bridge–City Hall"};
 function metroLine(toId, g, fromHome){
   if (toId && LINE_ID[toId] != null) return LINE_ID[toId];
   if (!fromHome || !g) return "";
@@ -1556,13 +1558,13 @@ pdlg.addEventListener("close", () => { openDayId = null; });
 
 /* ===== piano giorno per giorno ===== */
 const DAYS = [
-  {id: "gio29", dow: "Gio", n: 29, mon: "ott", iso: "2026-10-29", long: "Giovedì 29 ottobre", short: "gio 29", tram: "17:53"},
-  {id: "ven30", dow: "Ven", n: 30, mon: "ott", iso: "2026-10-30", long: "Venerdì 30 ottobre", short: "ven 30", tram: "17:52", free: true},
-  {id: "sab31", dow: "Sab", n: 31, mon: "ott", iso: "2026-10-31", long: "Sabato 31 ottobre", short: "sab 31", tram: "17:50"},
-  {id: "dom1", dow: "Dom", n: 1, mon: "nov", iso: "2026-11-01", long: "Domenica 1 novembre", short: "dom 1", tram: "16:49"},
-  {id: "lun2", dow: "Lun", n: 2, mon: "nov", iso: "2026-11-02", long: "Lunedì 2 novembre", short: "lun 2", tram: "16:48", free: true},
-  {id: "mar3", dow: "Mar", n: 3, mon: "nov", iso: "2026-11-03", long: "Martedì 3 novembre", short: "mar 3", tram: "16:47", free: true},
-  {id: "mer4", dow: "Mer", n: 4, mon: "nov", iso: "2026-11-04", long: "Mercoledì 4 novembre", short: "mer 4", tram: "16:46"}
+  {id: "gio29", dow: "Gio", n: 29, mon: "ott", iso: "2026-10-29", long: "Giovedì 29 ottobre", short: "gio 29", tram: "17:53", alba: "7:23"},
+  {id: "ven30", dow: "Ven", n: 30, mon: "ott", iso: "2026-10-30", long: "Venerdì 30 ottobre", short: "ven 30", tram: "17:52", alba: "7:24", free: true},
+  {id: "sab31", dow: "Sab", n: 31, mon: "ott", iso: "2026-10-31", long: "Sabato 31 ottobre", short: "sab 31", tram: "17:50", alba: "7:25"},
+  {id: "dom1", dow: "Dom", n: 1, mon: "nov", iso: "2026-11-01", long: "Domenica 1 novembre", short: "dom 1", tram: "16:49", alba: "6:26"},
+  {id: "lun2", dow: "Lun", n: 2, mon: "nov", iso: "2026-11-02", long: "Lunedì 2 novembre", short: "lun 2", tram: "16:48", alba: "6:28", free: true},
+  {id: "mar3", dow: "Mar", n: 3, mon: "nov", iso: "2026-11-03", long: "Martedì 3 novembre", short: "mar 3", tram: "16:47", alba: "6:29", free: true},
+  {id: "mer4", dow: "Mer", n: 4, mon: "nov", iso: "2026-11-04", long: "Mercoledì 4 novembre", short: "mer 4", tram: "16:46", alba: "6:30"}
 ];
 const IC = {
   plane: '<path d="M3 13l18-7-7 18-3-8z"/>', metro: '<rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M8 20l-2 2M16 20l2 2M9 13h.01M15 13h.01"/>',
@@ -1587,8 +1589,13 @@ const TAGS = {
 const SHORT_T = {met: "Met", "g-cloisters": "Cloisters", whitney: "Whitney", "g-frick": "Frick", "g-transit-museum": "Transit Museum", "g-seaport-museum": "Seaport Museum"};
 const MOM = ["mattina", "pranzo", "pomeriggio", "sera"], MOM_L = {mattina: "Mattina", pranzo: "Pranzo", pomeriggio: "Pomeriggio", sera: "Sera"};
 const MOM_START = {mattina: 0, pranzo: 750, pomeriggio: 870, sera: 1140};
-const DUR = {visita: 75, giro: 60, "a piedi": 60, pranzo: 60, cena: 90, colazione: 45, "di passaggio": 15, sera: 120, drink: 75, tramonto: 40, messa: 120, parata: 120, "si balla": 180, notte: 180, pomeriggio: 60};
-const DUR_ID = {met: 150, moma: 120, memorial: 60, "g-natural-history": 120, cpark: 90, bbridge: 40, whitney: 90, "g-guggenheim": 90, "g-frick": 90, owo: 60, totr: 45, summit: 60, highline: 60};
+const DUR = {partita: 150, alba: 105, visita: 75, giro: 60, "a piedi": 60, pranzo: 60, cena: 90, colazione: 45, "di passaggio": 15, sera: 120, drink: 75, tramonto: 40, messa: 120, parata: 120, "si balla": 180, notte: 180, pomeriggio: 60};
+const DUR_ID = {"nba-knicks-nets": 150, "nba-nets-pistons": 150, "nba-knicks-bulls": 150, "g-alba-brooklyn-bridge": 105, "g-bici-central-park": 90, met: 150, moma: 120, memorial: 60, "g-natural-history": 120, cpark: 90, bbridge: 40, whitney: 90, "g-guggenheim": 90, "g-frick": 90, owo: 60, totr: 45, summit: 60, highline: 60};
+/* posti con un orario fisso: le partite e l'alba (che cambia col giorno) */
+const FIX_ORA = {"nba-knicks-nets": () => "19:30", "nba-nets-pistons": () => "19:30", "nba-knicks-bulls": () => "19:30", "g-alba-brooklyn-bridge": day => day ? hm(toMin(day.alba) - 25) : ""};
+const FIX_R = {"nba-knicks-nets": "partita", "nba-nets-pistons": "partita", "nba-knicks-bulls": "partita", "g-alba-brooklyn-bridge": "alba"};
+const FIX_N = {"g-alba-brooklyn-bridge": day => day ? `sul ponte 25 min prima dell'alba (${day.alba}), poi DUMBO e colazione` : "", "nba-knicks-nets": () => "palla a due alle 19:30, si esce verso le 22", "nba-nets-pistons": () => "palla a due alle 19:30, si esce verso le 22", "nba-knicks-bulls": () => "palla a due alle 19:30"};
+const PREF_DAY = {"g-alba-brooklyn-bridge": "lun2"};
 const toMin = s => { const m = /^(\d{1,2}):(\d{2})/.exec(s || ""); return m ? +m[1] * 60 + +m[2] : 600; };
 const hm = m => `${Math.floor(m / 60) % 24}:${String(Math.round(m % 60)).padStart(2, "0")}`;
 let PIANO = {}, FATTO = {};
@@ -1598,9 +1605,14 @@ function entriesOf(d, extra){
   const l = ((PIANO[d] || {}).voci || []).map((e, i) => Object.assign({i}, e));
   for (const p of PACKS) if (p.giorno === d) l.push({t: "pack", id: p.id, m: p.momento || "sera", fixed: true});
   if (extra) l.push(Object.assign({extra: true}, extra));
-  return l.sort((a, b) => MOM.indexOf(a.m) - MOM.indexOf(b.m));
+  const day = DAYS.find(x => x.id === d);
+  /* nello stesso momento della giornata, prima chi ha un orario fisso più presto (l'alba prima del resto della mattina) */
+  const key = e => { const f = e.t === "posto" && FIX_ORA[e.id] ? FIX_ORA[e.id](day) : ""; return f ? toMin(f) : e.m === "mattina" ? 600 : MOM_START[e.m]; };
+  return l.sort((a, b) => MOM.indexOf(a.m) - MOM.indexOf(b.m) || key(a) - key(b));
 }
-function stopsOfEntry(e){
+function stopsOfEntry(e, d){
+  const day = d && DAYS.find(x => x.id === d);
+  if (e.t === "posto" && ITEMS[e.id] && FIX_ORA[e.id]) return [{k: e.id, r: FIX_R[e.id], n: FIX_N[e.id] ? FIX_N[e.id](day) : "", ora: FIX_ORA[e.id](day) || undefined}];
   if (e.t === "posto") return ITEMS[e.id] ? [{k: e.id, r: roleFor(e.id, e.m), n: ""}] : [];
   const p = PACKS.find(x => x.id === e.id); return p ? effStops(p) : [];
 }
@@ -1614,13 +1626,16 @@ function priceRange(k){
 function dayPlan(d, extra){
   const day = DAYS.find(x => x.id === d), ents = entriesOf(d, extra), casa = GEO._casa;
   const start = toMin((PIANO[d] || {}).inizio || "10:00"), sun = toMin(day.tram);
-  let cur = start, pos = casa, n = 0, lo = 0, hi = 0, priced = 0;
-  const rows = [], pts = [];
+  let cur = start, pos = casa, n = 0, lo = 0, hi = 0, priced = 0, shownStart = start;
+  const rows = [], pts = [], spans = [];
   for (const e of ents){
-    const p = e.t === "pack" ? PACKS.find(x => x.id === e.id) : null, stops = stopsOfEntry(e), probs = [];
-    const nominal = p && p.inizio ? toMin(p.inizio) : e.m === "mattina" ? start : MOM_START[e.m];
+    const p = e.t === "pack" ? PACKS.find(x => x.id === e.id) : null, stops = stopsOfEntry(e, d), probs = [];
+    /* una voce con orario fisso (alba, partita) come prima del giorno fissa la partenza; dopo un'alba la mattina continua senza aspettare le 10 */
+    const fixFirst = e.t === "posto" && stops[0] && stops[0].ora ? toMin(stops[0].ora) : null;
+    const nominal = p && p.inizio ? toMin(p.inizio) : e.m === "mattina" ? (e === ents[0] ? start : Math.min(start, cur)) : MOM_START[e.m];
     const f = stops.find(s => GEO[s.k] && GEO[s.k].lat != null), l0 = f ? legMin(pos, GEO[f.k]) : 0;
     if (cur + l0 < nominal || (p && p.inizio && e === ents[0] && !(PIANO[d] || {}).inizio)) cur = nominal - l0;
+    if (fixFirst != null && e === ents[0] && !(PIANO[d] || {}).inizio && fixFirst - l0 < cur){ cur = fixFirst - l0; shownStart = cur; }
     e.ora = cur + l0; e.probs = probs; e.stops = [];
     rows.push({type: "entry", e, p});
     if (d === "gio29") probs.push("Giovedì atterrate alle 14:15 e la sera c'è la cena con gli zii");
@@ -1632,7 +1647,7 @@ function dayPlan(d, extra){
       if (anchor && cur < anchor) cur = anchor;
       if (s.ora && cur > toMin(s.ora) + 10) probs.push(`${ITEMS[s.k].t}: ci arrivate verso le ${hm(cur)}, non alle ${s.ora}`);
       const du = DUR_ID[s.k] || DUR[s.r] || 60, ora = cur, end = cur + du;
-      rows.push({type: "stop", s, ora, n: g && g.lat != null ? n : "", e}); e.stops.push(s.k); cur = end;
+      rows.push({type: "stop", s, ora, n: g && g.lat != null ? n : "", e}); e.stops.push(s.k); cur = end; spans.push({k: s.k, a: ora, b: end, e});
       const a = AVV[s.k];
       if (a && a.chiuso && a.chiuso.includes(d)) probs.push(`${ITEMS[s.k].t}: ${a.motivo || "chiuso"}`);
       if (d === "sab31" && !(p && p.giorno === "sab31") && end > 1125) probs.push("Alle 19 c'è la parata di Halloween");
@@ -1650,8 +1665,14 @@ function dayPlan(d, extra){
     }
     e.end = cur; e.probs = [...new Set(probs)];
   }
+  /* una partita occupa la sera: avviso sulle altre voci che si sovrappongono (da 45 min prima a fine partita) */
+  for (const g of spans){
+    if (FIX_R[g.k] !== "partita") continue;
+    const t0 = toMin(FIX_ORA[g.k](day)), w0 = t0 - 45, w1 = t0 + 150;
+    for (const o of spans) if (o.e !== g.e && o.a < w1 && o.b > w0 && !o.e.probs.some(x => x.startsWith("Alle 19:30"))) o.e.probs.push(`Alle 19:30 c'è ${ITEMS[g.k].t.replace(/ \(.*\)$/, "")}: la sera è occupata fino alle 22 circa`);
+  }
   if (pos !== casa) rows.push({type: "leg", txt: "Fino a casa: " + legText(pos, casa, "", false)});
-  return {day, ents, rows, pts, start, budget: priced ? [lo, hi] : null};
+  return {day, ents, rows, pts, start: shownStart, budget: priced ? [lo, hi] : null};
 }
 function dayTags(d){
   const t = (TAGS[d] || []).slice();
@@ -1703,11 +1724,13 @@ const dayDlg = document.getElementById("day-dlg");
 let ddSel = null;
 function defMoment(t, id){
   if (t === "pack"){ const q = ((PACKS.find(p => p.id === id) || {}).quando || "").toLowerCase(); return MOM.find(m => q.startsWith(m)) || MOM.find(m => q.includes(m)) || (q.includes("giornata") ? "mattina" : "pomeriggio"); }
+  if (FIX_R[id] === "alba") return "mattina";
   const kd = kindOf(id); return kd === "pasto" ? (MORNING_IDS.has(id) ? "mattina" : "pranzo") : kd === "sera" ? "sera" : "pomeriggio";
 }
 function openPicker(t, id){
   const freeFirst = DAYS.find(d => d.free && !entriesOf(d.id).length) || DAYS[1];
   ddSel = {t, id, d: freeFirst.id, m: defMoment(t, id)};
+  if (t === "posto" && PREF_DAY[id]) ddSel.d = PREF_DAY[id];
   if (t === "posto"){ const o = openDays(id); if (o.length && !o.some(x => x.id === ddSel.d)) ddSel.d = o[0].id; }
   paintPicker();
   if (!dayDlg.open) dayDlg.showModal();
@@ -1869,7 +1892,7 @@ async function loadAll(){
   const parts = await Promise.all(["data/g1.json","data/g2.json","data/g3.json","data/g4.json","data/g5.json"].map(j));
   parts.forEach(p => (p||[]).forEach(x => { DATA[x.id] = x; }));
   let guide = [];
-  for (const f of ["data/guide_cose.json","data/guide_cibo.json","data/guide_hotdog.json","data/guide_street.json","data/dolci_1.json","data/dolci_2.json","data/dolci_3.json","data/guide_chinatown.json","data/guide_burger.json"]){
+  for (const f of ["data/guide_cose.json","data/guide_cibo.json","data/guide_hotdog.json","data/guide_street.json","data/dolci_1.json","data/dolci_2.json","data/dolci_3.json","data/guide_chinatown.json","data/guide_burger.json","data/guide_burger2.json","data/guide_nba.json"]){
     const g = await j(f); if (g){ guide = guide.concat(g); g.forEach(x => { DATA[x.id] = x; if (x.paragone) PAR[x.id] = x.paragone; }); }
   }
   SCONTI = await j("data/sconti.json") || {};
@@ -1878,12 +1901,14 @@ async function loadAll(){
   ZONE = await j("data/zone.json") || ZONE;
   HAS = new Set(await j("_imgs") || []); AVV = await j("data/avvisi.json") || {};
   GEO = await j("data/geo.json") || {}; PREN = await j("data/prenota.json") || {}; MAP = await j("data/map.json"); PACKS = await j("data/pacchetti.json") || [];
+  for (const f of ["burger2", "extra"]){ Object.assign(GEO, await j(`data/geo_${f}.json`) || {}); Object.assign(PREN, await j(`data/prenota_${f}.json`) || {}); }
+  Object.assign(AVV, await j("data/avvisi_extra.json") || {});
   for (const f of ["data/sticker.json", "data/sticker_extra.json", "data/sticker_extra2.json"]){ const g = await j(f) || {}; for (const k in g) STK[k] = (STK[k] || []).concat(g[k]); }
   for (let i=0;i<5;i++) Object.assign(MENU, await j(`data/menu_${i}.json`) || {});
-  Object.assign(MENU, await j("data/menu_cn.json") || {});
-  for (const i of [...Array(14).keys(), "cn"]){
+  for (const f of ["cn", "burger2", "extra"]) Object.assign(MENU, await j(`data/menu_${f}.json`) || {});
+  for (const i of [...Array(14).keys(), "cn", "burger2", "extra"]){
     const g = await j(`data/sel_${i}.json`); if (!g) continue;
-    for (const k in g){ const o = g[k].ordine || [], gen = (g[k].generiche || []).filter(f => !o.includes(f)); SEL[k] = o.concat(gen); CAP[k] = g[k].didascalie || {}; for (const f of gen) if (!CAP[k][f]) CAP[k][f] = "Foto indicativa del piatto, non del locale"; }
+    for (const k in g){ const o = g[k].ordine || [], gen = (g[k].generiche || []).filter(f => !o.includes(f)), cr = g[k].crediti || {}; SEL[k] = o.concat(gen); CAP[k] = Object.assign({}, g[k].didascalie || {}); for (const f of gen) if (!CAP[k][f]) CAP[k][f] = "Foto indicativa del piatto, non del locale"; for (const f in cr) CAP[k][f] = (CAP[k][f] ? CAP[k][f] + " · " : "") + "Foto: " + cr[f]; }
   }
   for (const f of ["data/gallerie.json","data/gallerie2.json","data/gallerie3.json","data/ov_0.json","data/ov_1.json","data/ov_2.json","data/ov_3.json","data/ov_5.json","data/ov_6.json","data/ov_extra.json","data/ov_extra2.json","data/ov_dolci23.json","data/ov_dolci1.json","data/ov_guide.json","data/ov_ei_0.json","data/ov_ei_1.json","data/ov_ei_2.json","data/ov_ei_3.json","data/ov_ei_4.json","data/ov_ei_5.json","data/ov_johns.json"]){
     const g = await j(f); if (g) for (const k in g) GAL[k] = (GAL[k]||[]).concat(g[k]);
