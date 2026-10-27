@@ -634,10 +634,15 @@ body[data-tab="percorsi"] .hero-ph,body[data-tab="piano"] .hero-ph{min-height:cl
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ko:#ff7085}}
 :root[data-theme="dark"]{--ko:#ff7085}
 .avv{margin:4px 0 0;font:600 13px/1.35 var(--body);color:var(--ko)}
+.qd{margin:4px 0 0;font:500 13px/1.35 var(--body);color:var(--ink)}.qd b{font-weight:700}
+.avv-box{margin:8px 0;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--ko) 10%,transparent);font:500 13px/1.4 var(--body)}.avv-box b{color:var(--ko)}
+.px-x{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px}.px-x h4{margin:0 0 4px}.px-x p{margin:4px 0}
+.sec-l{font:500 13px/1.5 var(--body);color:var(--muted)}.sec-l .lnk{font-size:13px}
 .avv.ok{color:var(--si)}
 .nores{margin:40px 0;text-align:center;font:700 18px var(--display);color:var(--muted)}
 .nores[hidden]{display:none}
 .pk-sub{grid-column:1/-1;font:700 13px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 -4px}
+.pk-subp{grid-column:1/-1;margin:0}
 .pk.fixed{border-color:#f08c00;border-width:2px}
 .rain{font-size:14px;line-height:1.4;background:color-mix(in srgb,var(--ale) 9%,transparent);padding:8px 10px;border-radius:10px;margin:4px 0 0}
 .pk p.fine{font-size:15px}
@@ -819,7 +824,7 @@ body[data-tab="percorsi"] .hero-ph,body[data-tab="piano"] .hero-ph{min-height:cl
       <div id="dlg-perc" style="margin-top:14px"></div>
     </div>
     <div class="dlg-body">
-      <div><div id="dlg-plan"></div><div id="dlg-stk"></div><p class="desc" id="dlg-desc"></p><div id="dlg-sconto"></div></div>
+      <div><div id="dlg-plan"></div><div id="dlg-stk"></div><p class="desc" id="dlg-desc"></p><div id="dlg-px"></div><div id="dlg-sconto"></div></div>
       <div id="dlg-book"></div>
       <div id="dlg-comm"></div>
       <div id="dlg-menu"></div>
@@ -966,9 +971,14 @@ const GRP_OF = {downtown:"vedere", midtown:"vedere", west:"vedere", vicino:"vede
   dolci:"dolci", halloween:"halloween", gospel:"gospel", induo:"induo"};
 const GUIDE_GRP = {"Classici":"vedere","Musei":"vedere","Quartieri e passeggiate":"vedere","Esperienze":"vedere","Insoliti":"vedere",
   "Classici di New York da mangiare":"mangiare","Hot dog":"mangiare","Street food e mercati":"mangiare",
-  "Cinese":"mangiare","Cinese a Chinatown":"mangiare","Burger dalle classifiche":"mangiare","Partite NBA":"sport","Cookie":"dolci","Cinnamon roll":"dolci","Cheesecake":"dolci","Babka":"dolci","Black and white cookie":"dolci","Donut":"dolci","Croissant":"dolci"};
-const GROUPS = [["vedere","Da vedere"],["mangiare","Da mangiare"],["dolci","Dolci"],["halloween","Halloween"],["induo","In due"],["sport","Sport"],["gospel","Gospel"]];
-const SEC_T = {"Partite NBA": "Partite NBA nei vostri giorni"};
+  "Cinese":"mangiare","Cinese a Chinatown":"mangiare","Burger dalle classifiche":"mangiare","Partite NBA":"sport","Cose pazzesche":"vedere","Cookie":"dolci","Cinnamon roll":"dolci","Cheesecake":"dolci","Babka":"dolci","Black and white cookie":"dolci","Donut":"dolci","Croissant":"dolci"};
+const GROUPS = [["vedere","Da vedere"],["mangiare","Da mangiare"],["dolci","Dolci"],["halloween","Halloween"],["induo","In due"],["shopping","Shopping"],["sport","Sport"],["gospel","Gospel"]];
+const SEC_T = {"Partite NBA": "Partite NBA nei vostri giorni", "Cose pazzesche": "Cose pazzesche"};
+/* schede da TikTok: sezione e gruppo per categoria (la crociera va con bar e rooftop) */
+const TT_SEC = {"Colazione e caffè": ["Da TikTok: colazione e caffè", "mangiare"], "Dolci": ["Da TikTok: dolci", "dolci"], "Pranzo e cena": ["Da TikTok: pranzo e cena", "mangiare"],
+  "Bar e rooftop": ["Da TikTok: bar, rooftop e crociera", "induo"], "Esperienze": ["Da TikTok: bar, rooftop e crociera", "induo"], "Da vedere": ["Da TikTok: da vedere", "vedere"], "Shopping e vintage": ["Da TikTok: shopping e vintage", "shopping"]};
+const SEC_P = {"Cose pazzesche": "Le cose che si fanno solo qui. Su ogni scheda c'è quando conviene andare; quelle con una data o un orario fisso lo segnalano quando le mettete in un giorno."};
+let UNI = {};
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 const ITEMS = {}, DATA = {};
@@ -984,11 +994,13 @@ let db = null, filter = "tutti", query = "", byZone = false, openId = null, orde
 
 function buildSections(guide){
   SECTIONS = S.map(s => ({id:s.id, t:s.t, p:s.p, grp:GRP_OF[s.id]||"vedere", items:s.items.map(([k,t,d,m,im]) => ({k,t,d,m,img:"img-"+(im||k)+".jpg"}))}));
-  const cats = [];
-  for (const x of guide){ if (!cats.includes(x.categoria)) cats.push(x.categoria); }
+  const cats = [], secOf = x => x.sez || x.categoria;
+  for (const x of guide){ if (!cats.includes(secOf(x))) cats.push(secOf(x)); }
   for (const c of cats){
-    SECTIONS.push({id:"g-"+c.toLowerCase().replace(/[^a-z]+/g,"-"), t:SEC_T[c] || "Dalle guide: "+c, p:c === "Partite NBA" ? "Prezzi indicativi dei biglietti, letti il 27/10 su Vivid Seats: cambiano ogni giorno." : "", grp:GUIDE_GRP[c]||"mangiare",
-      items: guide.filter(x => x.categoria === c).map(x => ({k:x.id, t:x.titolo, d:x.breve||"", m:x.meta||"", img:"img-"+x.id+".jpg"}))});
+    const its = guide.filter(x => secOf(x) === c), x0 = its[0];
+    SECTIONS.push({id:"g-"+c.toLowerCase().replace(/[^a-z]+/g,"-"), t:SEC_T[c] || (x0.sez ? c : "Dalle guide: "+c), p:c === "Partite NBA" ? "Prezzi indicativi dei biglietti, letti il 27/10 su Vivid Seats: cambiano ogni giorno." : SEC_P[c] || "", grp:x0.grp || GUIDE_GRP[c]||"mangiare",
+      first: c === "Cose pazzesche", links: c === "Cose pazzesche" ? Object.values(UNI).map(u => u.id) : null,
+      items: its.map(x => ({k:x.id, t:x.titolo, d:x.breve||"", m:x.meta||"", img:"img-"+x.id+".jpg"}))});
   }
   for (const s of SECTIONS) for (const it of s.items){ ITEMS[it.k] = Object.assign({sec:s.t, grp:s.grp}, it); }
 }
@@ -1006,11 +1018,13 @@ function cover(k){
   return g || "";
 }
 const ZC = {casa:[40.726,-73.995],village:[40.733,-74.003],eastles:[40.722,-73.986],chinatown:[40.716,-73.998],downtown:[40.707,-74.011],westside:[40.745,-74.005],midtown:[40.755,-73.982],uptown:[40.775,-73.968],harlem:[40.81,-73.948],brooklyn:[40.705,-73.96]};
+/* altri centri di Brooklyn: senza, DUMBO e Greenpoint finirebbero a Manhattan */
+const ZC_ALT = {"brooklyn@dumbo": [40.702, -73.989], "brooklyn@greenpoint": [40.729, -73.955]};
 function zoneOf(k){
   if (ZONE.mappa[k]) return ZONE.mappa[k];
   const g = GEO[k]; if (!g || g.lat == null) return "";
   let best = "fuori", bd = 3.5;
-  for (const z in ZC){ const d = hav(g, {lat: ZC[z][0], lng: ZC[z][1]}); if (d < bd){ bd = d; best = z; } }
+  for (const [z, c] of Object.entries(ZC).concat(Object.entries(ZC_ALT))){ const d = hav(g, {lat: c[0], lng: c[1]}); if (d < bd){ bd = d; best = z.split("@")[0]; } }
   return best;
 }
 function zoneName(z){ const o = ZONE.zone.find(x => x.id === z); return o ? o.t : ""; }
@@ -1026,7 +1040,7 @@ function cardHTML(it){
       <h3><button type="button" class="open" data-open="${esc(k)}">${esc(it.t)}</button></h3>
       <p>${esc(it.d)}</p>
       <div class="meta">${esc(it.m)}${z ? " · " + esc(zoneName(z).split(":")[0]) : ""}</div>
-      ${avvLine(k)}
+      ${quandoLine(k)}${avvLine(k)}
       <div class="tags">${isPass(k) ? `<span class="pass">Di passaggio · 10-20 min</span>` : ""}<span class="cmn"></span>${mn && shortPrice(mn) ? `<span class="prezzo">${esc(shortPrice(mn))}</span>` : ""}${sc ? `<span class="sconto">${esc(sc.breve)}</span>` : ""}${packChips(k)}</div>
       <div class="votes">${voteRows(k)}</div>
     </div>
@@ -1034,7 +1048,7 @@ function cardHTML(it){
 }
 const PASS_RX = /^(street-|hotdog-|cheesecake-|babka-|bianconero-|redgate-|donut|doughnut|homies|funnyface|losers|benjis|lappartement|librae|supermoon)/;
 const PASS_IDS = new Set(["maman","levain","ansel","magnolia","joes","princest","scarrs","russ","essa","tompkins","gf-mei-lai-wah","gf-yonah-schimmel","gf-mamouns","gf-taim","gf-blue-sky-deli","xian","w69","nyu","rock","times","littleisland","vessel"]);
-function isPass(k){ return PASS_RX.test(k) || PASS_IDS.has(k) || PACKS.some(p => p.tappe.some(t => t.id === k && t.r === "di passaggio")); }
+function isPass(k){ return PASS_RX.test(k) || PASS_IDS.has(k) || (/^(tt|px)-/.test(k) && /di passaggio/.test((DATA[k] || {}).meta || "")) || PACKS.some(p => p.tappe.some(t => t.id === k && t.r === "di passaggio")); }
 function bookSticker(k){
   const b = PREN[k]; if (!b || !/difficile|impossibile/.test(b.livello || "")) return "";
   const e = b.controllo && b.controllo.esito ? (/nessun posto/i.test(b.controllo.esito) ? "Controllato: niente posto" : /liber|:\s*\w{3}\s\d/i.test(b.controllo.esito) ? "Controllato: c'è posto" : "") : "";
@@ -1062,10 +1076,18 @@ function avvLine(k){
   if (a.nota) return `<p class="avv ok">${esc(a.nota)}</p>`;
   const t = avvText(k); return t ? `<p class="avv">${esc(t)}</p>` : "";
 }
+/* quando conviene andare (Cose pazzesche), anche per le schede esistenti a cui sono state unite */
+function quandoOf(k){
+  const x = DATA[k] || {}, l = [];
+  if (x.quando) l.push(x.quando);
+  for (const e of x.extra || []) if (e.quando) l.push(`${e.label}: ${e.quando}`);
+  return l;
+}
+function quandoLine(k){ const l = quandoOf(k); return l.length ? `<p class="qd"><b>Quando:</b> ${esc(l.join(" · "))}</p>` : ""; }
 function stickers(k){
-  const l = STK[k] || [], bs = bookSticker(k) + avvSticker(k); if (!l.length && !bs) return "";
+  const l = (STK[k] || []).slice().sort((a, b) => !!b.red - !!a.red), bs = bookSticker(k) + avvSticker(k); if (!l.length && !bs) return "";
   if (!l.length) return `<div class="stk">${bs}</div>`;
-  return `<div class="stk">${l.slice(0, 2).map(x => `<span class="sticker"><b>${esc(x.t)}</b><small>${esc(x.fonte)}${x.anno ? " " + esc(x.anno) : ""}</small></span>`).join("")}${l.length > 2 ? `<span class="sticker more2">+${l.length - 2}</span>` : ""}${bs}</div>`;
+  return `<div class="stk">${l.slice(0, 2).map(x => `<span class="sticker${x.red ? " red" : ""}"><b>${esc(x.t)}</b><small>${esc(x.fonte)}${x.anno ? " " + esc(x.anno) : ""}</small></span>`).join("")}${l.length > 2 ? `<span class="sticker more2">+${l.length - 2}</span>` : ""}${bs}</div>`;
 }
 function voteRow(k, who){
   const n = who === "ale" ? "Ale" : "Anna", x = v(k);
@@ -1090,7 +1112,7 @@ function render(){
       const secs = SECTIONS.filter(s => s.grp === g);
       if (!secs.length) continue;
       html += `<div class="grp-h" id="grp-${g}" data-grp="${g}"><h2>${esc(label)}</h2></div>`;
-      for (const s of secs) html += `<section data-sec="${esc(s.id)}"><div class="sec-h"><h2>${esc(s.t)}</h2>${s.p ? `<p>${esc(s.p)}</p>` : ""}</div><div class="grid">${s.items.map(cardHTML).join("")}</div></section>`;
+      for (const s of secs.filter(s => s.first).concat(secs.filter(s => !s.first))) html += `<section data-sec="${esc(s.id)}"><div class="sec-h"><h2>${esc(s.t)}</h2>${s.p ? `<p>${esc(s.p)}</p>` : ""}${s.links && s.links.some(o => ITEMS[o]) ? `<p class="sec-l">Già nella pagina, con le date aggiunte sulla scheda: ${s.links.filter(o => ITEMS[o]).map(o => `<button type="button" class="lnk" data-open="${esc(o)}">${esc(ITEMS[o].t)}</button>`).join(" · ")}</p>` : ""}</div><div class="grid">${s.items.map(cardHTML).join("")}</div></section>`;
     }
   } else {
     for (const z of ZONE.zone){
@@ -1288,7 +1310,8 @@ function fill(k){
       ${bk.consiglio ? `<p class="src">${esc(bk.consiglio)}</p>` : ""}
       ${bk.link && /^https?:/.test(bk.link) ? `<a class="maps" href="${esc(bk.link)}" target="_blank" rel="noopener">Pagina per prenotare</a>` : ""}</div>` : "";
   document.getElementById("dlg-plan").innerHTML = avvLine(k) + placePlanBox(k);
-  document.getElementById("dlg-sconto").innerHTML = sc ? `<p><span class="sconto">${esc(sc.breve)}</span></p><p class="src">${esc(sc.dettaglio||"")}</p>` : "";
+  const pxEl = document.getElementById("dlg-px"); if (pxEl) pxEl.innerHTML = pxBox(k);
+  document.getElementById("dlg-sconto").innerHTML = sc ?`<p><span class="sconto">${esc(sc.breve)}</span></p><p class="src">${esc(sc.dettaglio||"")}</p>` : "";
   const pc = PERC[k];
   document.getElementById("dlg-perc").innerHTML = pc ? `<h4 style="font:700 13px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">${esc(pc.titolo)}</h4><ol class="perc">${pc.tappe.map(([t,d]) => `<li><strong>${esc(t)}</strong> · ${esc(d)}</li>`).join("")}</ol>${pc.nota?`<p class="src">${esc(pc.nota)}</p>`:""}` : "";
   const mn = MENU[k];
@@ -1317,12 +1340,27 @@ function fill(k){
       ${r && r.voto?`<p class="voto">${esc(r.voto)}</p>`:""}
       ${r ? `<div class="rev"><div><strong>Piace</strong><ul>${li(r.pro)}</ul></div><div><strong>Non piace</strong><ul>${li(r.contro)}</ul></div></div>
       ${r.consiglio?`<p><strong>Consiglio:</strong> ${esc(r.consiglio)}</p>`:""}
-      ${(r.fonti||[]).length?`<p class="src">Fonti: ${r.fonti.filter(u=>/^https?:/.test(u)).map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${i+1}</a>`).join(" · ")}</p>`:""}` : ""}` : "";
+      ${(r.fonti||[]).some(u=>/^https?:/.test(u))?`<p class="src">Fonti: ${r.fonti.filter(u=>/^https?:/.test(u)).map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${i+1}</a>`).join(" · ")}</p>`:(r.fonti||[]).length?`<p class="src">Fonti: ${esc(r.fonti.join(", "))}</p>`:""}` : ""}` : "";
   const cm = COMM[k] || {};
   document.getElementById("dlg-comm").innerHTML = `<h4>Commenti</h4>` + ["ale","anna"].map(w => `<label class="cm"><span class="bul b-${w}">${w === "ale" ? "Al" : "An"}</span><textarea data-cm="${w}" ${ME && ME !== w ? "readonly" : ""} placeholder="${ME && ME !== w ? "Ancora niente da " + (w === "ale" ? "Ale" : "Anna") : "Cosa ne pensa " + (w === "ale" ? "Ale" : "Anna") + "…"}"></textarea></label>`).join("");
   document.querySelectorAll("#dlg-comm textarea").forEach(t => { t.value = cm[t.dataset.cm] || ""; });
   paintDialogVotes();
   document.querySelector("#dlg .dlg-grid").scrollIntoView({block:"start"});
+}
+/* quando andare, avviso, "per noi" e le Cose pazzesche unite a una scheda esistente */
+function pxBox(k){
+  const x = DATA[k] || {}, mn = MENU[k];
+  let h = "";
+  if (x.quando) h += `<p class="qd"><b>Quando andare:</b> ${esc(x.quando)}</p>`;
+  if (x.avviso) h += `<p class="avv-box"><b>Attenzione:</b> ${esc(x.avviso)}</p>`;
+  if (x.per_noi && !(mn && mn.per_noi)) h += `<p><strong>Per noi:</strong> ${esc(x.per_noi)}</p>`;
+  if (x.consiglio) h += `<p><strong>Consiglio:</strong> ${esc(x.consiglio)}</p>`;
+  for (const e of x.extra || []) h += `<div class="px-x"><h4>Dalle cose pazzesche: ${esc(e.t)}</h4><p>${esc(e.d || "")}</p>
+      ${e.quando ? `<p class="qd"><b>Quando andare:</b> ${esc(e.quando)}</p>` : ""}
+      ${e.info && e.info.orari ? `<p class="src"><b>Orari:</b> ${esc(e.info.orari)}</p>` : ""}${e.info && e.info.prezzo ? `<p class="src"><b>Prezzo:</b> ${esc(e.info.prezzo)}</p>` : ""}
+      ${e.per_noi ? `<p><strong>Per noi:</strong> ${esc(e.per_noi)}</p>` : ""}
+      ${e.info && e.info.sito && /^https?:/.test(e.info.sito) ? `<p class="src"><a href="${esc(e.info.sito)}" target="_blank" rel="noopener">${esc(e.info.sito.replace(/^https?:\/\//, ""))}</a></p>` : ""}</div>`;
+  return h;
 }
 const dlg = document.getElementById("dlg");
 function openDetail(k){ if (!ITEMS[k]) return; openId = k; fill(k); if (!dlg.open) dlg.showModal(); }
@@ -1374,8 +1412,10 @@ function zoomMap(box, d){
 function likes(k){ const x = v(k); return (x.ale === "si" || x.anna === "si") && x.ale !== "no" && x.anna !== "no"; }
 
 /* tipo di posto: serve per alternative coerenti, tempi e filtro del mazzo */
-const SERA_IDS = new Set(["vanguard","bemelmans","pdt","lebain","houseofyes","feste","parade","bloodmanor","sipguzzle","blaze","nba-knicks-nets","nba-nets-pistons","nba-knicks-bulls"]);
-const MORNING_IDS = new Set(["russ","tompkins","essa","gf-barney-greengrass","gf-lexington-candy-shop","clintonst","goldendiner","jackswife","sadelles","sylvias","redrooster"]);
+const SERA_IDS = new Set(["vanguard","bemelmans","pdt","lebain","houseofyes","feste","parade","bloodmanor","sipguzzle","blaze","nba-knicks-nets","nba-nets-pistons","nba-knicks-bulls",
+  "px-comedy-cellar","px-broadway-lottery","px-rocky-horror-town-hall","px-candlelight-halloween","px-speakeasy-ingresso-segreto","px-karaoke-k-town","px-smalls-jazz-notte","px-rooftop-cinema-midtown","tt-1-hotel-rooftop","tt-empire-hotel","tt-hudson-cruise"]);
+const MORNING_IDS = new Set(["russ","tompkins","essa","gf-barney-greengrass","gf-lexington-candy-shop","clintonst","goldendiner","jackswife","sadelles","sylvias","redrooster",
+  "tt-little-rubys","tt-sunday-to-sunday","tt-apollo-bagels","tt-liberty-bagels","tt-radio-bakery","tt-baby-blues","tt-balthazar-bakery","tt-caffe-paradiso","tt-fellini-coffee","tt-cha-cha-matcha","tt-ralphs-coffee","tt-culture-espresso"]);
 function kindOf(k){
   const it = ITEMS[k]; if (!it) return "";
   if (SERA_IDS.has(k)) return "sera";
@@ -1417,7 +1457,7 @@ function altFor(p){
   const pref = a => (isMatch(a) ? 3 : 0) + (likes(a) ? 2 : 0) + (v(a).ale === "forse" || v(a).anna === "forse" ? 0.5 : 0);
   for (const t of stops){
     const st = outState(t.id); if (!st) continue;
-    const g = GEO[t.id], kd = ["pranzo", "cena", "colazione"].includes(t.r) ? "pasto" : ["sera", "drink", "notte", "si balla"].includes(t.r) ? "sera" : kindOf(t.id);
+    const g = GEO[t.id], kd = ["pranzo", "cena", "colazione"].includes(t.r) ? "pasto" : ["sera", "drink", "notte", "si balla", "spettacolo", "jazz"].includes(t.r) ? "sera" : kindOf(t.id);
     const fits = o => ITEMS[o] && !used.has(o) && !outState(o) && kindOf(o) === kd && mealFits(o, t.r) && openDays(o).length > 0 && g && GEO[o] && GEO[o].lat != null && hav(g, GEO[o]) <= 1.5;
     const c = [...new Set(pool.concat(nearby(t.id, 1.5).map(x => x[0])))].filter(fits)
       .sort((a, b) => (pref(b) - pref(a)) || ((pool.includes(b) ? 1 : 0) - (pool.includes(a) ? 1 : 0)) || (hav(g, GEO[a]) - hav(g, GEO[b])));
@@ -1429,11 +1469,14 @@ function altFor(p){
 /* le tappe che si fanno davvero: con l'alternativa al posto della tappa scartata */
 function effStops(p){
   const alts = altFor(p);
-  return stopsOf(p).map(t => { const a = alts[t.id]; if (a && a.k) return {k: a.k, r: t.r, n: "", was: t.id, ora: t.ora}; if (a && a.hard) return null; return {k: t.id, r: t.r, n: t.n || "", ora: t.ora}; }).filter(Boolean);
+  return stopsOf(p).map(t => { const a = alts[t.id]; if (a && a.k) return {k: a.k, r: t.r, n: "", was: t.id, ora: t.ora, dur: t.dur}; if (a && a.hard) return null; return {k: t.id, r: t.r, n: t.n || "", ora: t.ora, dur: t.dur}; }).filter(Boolean);
 }
 
 /* spostamenti: oltre 1,8 km si prende la metro */
-const LINE_ID = {williamsburg: "L da 1st Ave a Bedford Av", "gf-peter-luger": "L fino a Bedford Av, o J/M/Z fino a Marcy Av", houseofyes: "L fino a Jefferson St (o J)", feste: "", abyssinian: "2/3 fino a 135 St", sylvias: "2/3 fino a 125 St", redrooster: "2/3 fino a 125 St", columbia: "1 fino a 116 St", "g-cloisters": "A fino a 190 St", dumbo: "F fino a York St", "nba-knicks-nets": "F o M fino a 34 St–Herald Sq", "nba-knicks-bulls": "F o M fino a 34 St–Herald Sq", "nba-nets-pistons": "B o D fino ad Atlantic Av–Barclays Ctr", "g-alba-brooklyn-bridge": "6 da Bleecker St fino a Brooklyn Bridge–City Hall"};
+const LINE_ID = {williamsburg: "L da 1st Ave a Bedford Av", "gf-peter-luger": "L fino a Bedford Av, o J/M/Z fino a Marcy Av", houseofyes: "L fino a Jefferson St (o J)", feste: "", abyssinian: "2/3 fino a 135 St", sylvias: "2/3 fino a 125 St", redrooster: "2/3 fino a 125 St", columbia: "1 fino a 116 St", "g-cloisters": "A fino a 190 St", dumbo: "F fino a York St", "nba-knicks-nets": "F o M fino a 34 St–Herald Sq", "nba-knicks-bulls": "F o M fino a 34 St–Herald Sq", "nba-nets-pistons": "B o D fino ad Atlantic Av–Barclays Ctr", "g-alba-brooklyn-bridge": "6 da Bleecker St fino a Brooklyn Bridge–City Hall",
+  "g-greenwood": "R da 8 St–NYU fino a 25 St", "px-sunset-park-tramonto": "R da 8 St–NYU fino a 45 St", "px-ellis-hard-hat": "4/5 fino a Bowling Green, poi il traghetto da Battery Park", "px-queens-night-market": "7 da Grand Central fino a 111 St",
+  "px-city-climb-edge": "6 fino a Grand Central, poi 7 fino a 34 St–Hudson Yards", "px-city-hall-loop": "6 da Bleecker St, restando a bordo dopo Brooklyn Bridge–City Hall", "tt-battery-park": "4/5 fino a Bowling Green", "tt-federal-hall": "R/W da 8 St–NYU fino a Rector St", "tt-trinity-church": "R/W da 8 St–NYU fino a Rector St",
+  "tt-pebble-beach": "F fino a York St", "tt-brooklyn-flea": "F fino a York St", "tt-1-hotel-rooftop": "F fino a York St", "tt-celestine": "F fino a York St", "tt-st-anselm": "L fino a Bedford Av", "tt-baby-blues": "L fino a Montrose Av", "tt-green-kitchen": "6 fino a 86 St", "tt-elios": "6 fino a 86 St"};
 function metroLine(toId, g, fromHome){
   if (toId && LINE_ID[toId] != null) return LINE_ID[toId];
   if (!fromHome || !g) return "";
@@ -1443,9 +1486,10 @@ function metroLine(toId, g, fromHome){
   return "";
 }
 function legMin(a, b){ const d = hav(a, b); return d > 1.8 ? Math.round(12 + d * 2.4) : Math.max(2, Math.round(d * 1.25 / 5 * 60)); }
+const METRO_IDS = new Set(["px-city-hall-loop"]);   /* la tappa è il viaggio in metro stesso */
 function legText(a, b, toId, fromHome){
-  const d = hav(a, b); if (d <= 1.8) return `${walk(d)} a piedi`;
-  const l = metroLine(toId, b, fromHome); return `metro ~${legMin(a, b)} min${l ? " · " + l : ""} (stima)`;
+  const d = hav(a, b); if (d <= 1.8 && !METRO_IDS.has(toId)) return `${walk(d)} a piedi`;
+  const l = metroLine(toId, b, fromHome); return `metro ~${d > 1.8 ? legMin(a, b) : Math.round(12 + d * 2.4)} min${l ? " · " + l : ""} (stima)`;
 }
 
 /* nei percorsi legati a una data l'avviso compare solo se riguarda quel giorno */
@@ -1486,7 +1530,7 @@ function packHTML(p){
   return `<article class="pk${day ? " fixed" : ""}" id="pk-${esc(p.id)}">
     <div class="pk-strip">${imgs.map(c => `<img src="${esc(c)}" alt="" loading="lazy" onerror="this.remove()">`).join("")}</div>
     <div class="pk-b">
-      <div class="pk-z">${day ? `Fisso: ${esc(p.quando)} · ${esc(zoneName(p.zona).split(":")[0])}` : `${esc(zoneName(p.zona).split(":")[0])} · ${esc(p.quando)} · ${esc(p.durata)}`}</div>
+      <div class="pk-z">${day ? `${p.proposta ? (tolto(day.id, p.id) ? "Proposto, tolto dal piano" : "Proposto") : "Fisso"}: ${esc(p.quando)} · ${esc(zoneName(p.zona).split(":")[0])}` : `${esc(zoneName(p.zona).split(":")[0])} · ${esc(p.quando)} · ${esc(p.durata)}`}</div>
       <h3>${esc(p.t)}</h3>
       <div class="pk-score">${scoreLine(s)}${s.todo ? ` · ${s.todo} da votare${ME ? " per te" : ""}` : ""}</div>
       <div class="pb"><i style="width:${s.n ? Math.round(s.m / s.n * 100) : 0}%;background:var(--match)"></i></div>
@@ -1496,14 +1540,17 @@ function packHTML(p){
       ${p.fine ? `<p class="fine"><b>${esc(p.fine.ora)}</b> ${esc(p.fine.t)} · <span class="src">${esc(p.fine.n || "")}</span></p>` : ""}
       ${rest.length ? `<p class="src">Alternative: ${rest.map(a => `<button type="button" class="lnk" data-open="${esc(a)}">${esc(ITEMS[a].t)}</button>${altNote(p, a) ? ` (${esc(altNote(p, a))})` : ""}`).join(" · ")}</p>` : ""}
       ${p.pioggia ? `<p class="rain"><b>Se piove:</b> ${esc(p.pioggia)}</p>` : ""}
-      <div class="pk-f"><button type="button" class="chip" data-pack="${esc(p.id)}">Vedi il giro sulla mappa</button>${day ? `<button type="button" class="chip" data-day="${esc(day.id)}">Apri ${esc(day.short)}</button>` : `<button type="button" class="chip go" data-plan="pack|${esc(p.id)}">Metti in un giorno</button>`}</div>
+      <div class="pk-f"><button type="button" class="chip" data-pack="${esc(p.id)}">Vedi il giro sulla mappa</button>${day ? `<button type="button" class="chip" data-day="${esc(day.id)}">Apri ${esc(day.short)}</button>${p.proposta ? (tolto(day.id, p.id) ? `<button type="button" class="chip go" data-retie="${esc(day.id)}|${esc(p.id)}">Rimetti in ${esc(day.short)}</button>` : `<button type="button" class="chip" data-untie="${esc(day.id)}|${esc(p.id)}">Togli da ${esc(day.short)}</button>`) : ""}` : `<button type="button" class="chip go" data-plan="pack|${esc(p.id)}">Metti in un giorno</button>`}</div>
     </div></article>`;
 }
 function renderPacks(){
   const el = document.getElementById("packs-list"); if (!el || !PACKS.length) return;
   if (!PACK_ORDER || PACK_ORDER.length !== PACKS.filter(p => !p.giorno).length) sortPacks();
   const fixed = PACKS.filter(p => p.giorno);
-  el.innerHTML = (fixed.length ? `<h3 class="pk-sub">Legati a una data</h3>` + fixed.map(packHTML).join("") + `<h3 class="pk-sub">Per i giorni liberi, in ordine di voti</h3>` : "")
+  const fx = fixed.filter(p => !p.proposta), pr = fixed.filter(p => p.proposta).sort((a, b) => DAYS.findIndex(d => d.id === a.giorno) - DAYS.findIndex(d => d.id === b.giorno));
+  el.innerHTML = (fx.length ? `<h3 class="pk-sub">Legati a una data</h3>` + fx.map(packHTML).join("") : "")
+    + (pr.length ? `<h3 class="pk-sub">Itinerari proposti per i giorni liberi</h3><p class="src pk-subp">Sono già nel piano del loro giorno: se non vi convincono, "Togli" e il giorno torna libero.</p>` + pr.map(packHTML).join("") : "")
+    + (fixed.length ? `<h3 class="pk-sub">Per i giorni liberi, in ordine di voti</h3>` : "")
     + PACK_ORDER.map(id => PACKS.find(p => p.id === id)).filter(Boolean).map(packHTML).join("");
   const top = document.getElementById("pk-top");
   if (top) top.innerHTML = ME ? "" : whoPicker("Chi sei? Così votate le tappe direttamente qui.");
@@ -1589,21 +1636,43 @@ const TAGS = {
 const SHORT_T = {met: "Met", "g-cloisters": "Cloisters", whitney: "Whitney", "g-frick": "Frick", "g-transit-museum": "Transit Museum", "g-seaport-museum": "Seaport Museum"};
 const MOM = ["mattina", "pranzo", "pomeriggio", "sera"], MOM_L = {mattina: "Mattina", pranzo: "Pranzo", pomeriggio: "Pomeriggio", sera: "Sera"};
 const MOM_START = {mattina: 0, pranzo: 750, pomeriggio: 870, sera: 1140};
-const DUR = {partita: 150, alba: 105, visita: 75, giro: 60, "a piedi": 60, pranzo: 60, cena: 90, colazione: 45, "di passaggio": 15, sera: 120, drink: 75, tramonto: 40, messa: 120, parata: 120, "si balla": 180, notte: 180, pomeriggio: 60};
-const DUR_ID = {"nba-knicks-nets": 150, "nba-nets-pistons": 150, "nba-knicks-bulls": 150, "g-alba-brooklyn-bridge": 105, "g-bici-central-park": 90, met: 150, moma: 120, memorial: 60, "g-natural-history": 120, cpark: 90, bbridge: 40, whitney: 90, "g-guggenheim": 90, "g-frick": 90, owo: 60, totr: 45, summit: 60, highline: 60};
+const DUR = {partita: 150, alba: 105, visita: 75, giro: 60, "a piedi": 60, pranzo: 60, cena: 90, colazione: 45, "di passaggio": 15, sera: 120, drink: 75, tramonto: 40, messa: 120, parata: 120, "si balla": 180, notte: 180, pomeriggio: 60, spettacolo: 105, jazz: 75, mercato: 120, crociera: 120};
+const DUR_ID = {"nba-knicks-nets": 150, "nba-nets-pistons": 150, "nba-knicks-bulls": 150, "g-alba-brooklyn-bridge": 105, "g-bici-central-park": 90, met: 150, moma: 120, memorial: 60, "g-natural-history": 120, cpark: 90, bbridge: 40, whitney: 90, "g-guggenheim": 90, "g-frick": 90, owo: 60, totr: 45, summit: 60, highline: 60,
+  "px-city-climb-edge": 90, "px-ellis-hard-hat": 120, "px-city-hall-loop": 20, "px-smalls-jazz-notte": 90, "px-karaoke-k-town": 120, "px-new-museum-bowery": 75, "px-nara-zwirner": 45, "px-rockefeller-rink": 75, "px-candlelight-halloween": 90, "px-rocky-horror-town-hall": 150, "px-broadway-lottery": 150, "px-rooftop-cinema-midtown": 150, "px-immersivo-2026": 180, "px-rooftop-chiusi-riscaldati": 75,
+  "tt-brooklyn-flea": 75, "tt-plaza-hotel": 45, "tt-oculus": 20, "tt-federal-hall": 40, "tt-trinity-church": 30, "tt-battery-park": 45, "tt-flatiron-madison-square": 50, "tt-pebble-beach": 30};
 /* posti con un orario fisso: le partite e l'alba (che cambia col giorno) */
-const FIX_ORA = {"nba-knicks-nets": () => "19:30", "nba-nets-pistons": () => "19:30", "nba-knicks-bulls": () => "19:30", "g-alba-brooklyn-bridge": day => day ? hm(toMin(day.alba) - 25) : ""};
-const FIX_R = {"nba-knicks-nets": "partita", "nba-nets-pistons": "partita", "nba-knicks-bulls": "partita", "g-alba-brooklyn-bridge": "alba"};
-const FIX_N = {"g-alba-brooklyn-bridge": day => day ? `sul ponte 25 min prima dell'alba (${day.alba}), poi DUMBO e colazione` : "", "nba-knicks-nets": () => "palla a due alle 19:30, si esce verso le 22", "nba-nets-pistons": () => "palla a due alle 19:30, si esce verso le 22", "nba-knicks-bulls": () => "palla a due alle 19:30"};
-const PREF_DAY = {"g-alba-brooklyn-bridge": "lun2"};
+const COMEDY = {gio29: "20:45", ven30: "20:45", sab31: "20:45", dom1: "21:00"};
+const tramOra = (day, m) => day ? hm(toMin(day.tram) - m) : "";
+const FIX_ORA = {"nba-knicks-nets": () => "19:30", "nba-nets-pistons": () => "19:30", "nba-knicks-bulls": () => "19:30", "g-alba-brooklyn-bridge": day => day ? hm(toMin(day.alba) - 25) : "",
+  "px-queens-night-market": () => "16:00", "px-comedy-cellar": day => day ? COMEDY[day.id] || "19:30" : "", "px-sunset-park-tramonto": day => tramOra(day, 30), "px-rooftop-chiusi-riscaldati": day => tramOra(day, 30),
+  "tt-hudson-cruise": day => day ? (day.iso >= "2026-11-01" ? "17:00" : "19:00") : ""};
+const FIX_R = {"nba-knicks-nets": "partita", "nba-nets-pistons": "partita", "nba-knicks-bulls": "partita", "g-alba-brooklyn-bridge": "alba",
+  "px-queens-night-market": "mercato", "px-comedy-cellar": "spettacolo", "px-sunset-park-tramonto": "tramonto", "px-rooftop-chiusi-riscaldati": "tramonto", "tt-hudson-cruise": "crociera"};
+const FIX_N = {"g-alba-brooklyn-bridge": day => day ? `sul ponte 25 min prima dell'alba (${day.alba}), poi DUMBO e colazione` : "", "nba-knicks-nets": () => "palla a due alle 19:30, si esce verso le 22", "nba-nets-pistons": () => "palla a due alle 19:30, si esce verso le 22", "nba-knicks-bulls": () => "palla a due alle 19:30",
+  "px-queens-night-market": () => "dalle 16; per la parata delle 19 si riparte entro le 18 (circa 50 min di metro)", "px-comedy-cellar": day => day ? `spettacolo delle ${COMEDY[day.id] || "19:30"} (scaletta da verificare sul sito)` : "",
+  "px-sunset-park-tramonto": day => day ? `tramonto alle ${day.tram} circa` : "", "px-rooftop-chiusi-riscaldati": day => day ? `un drink al tramonto (${day.tram} circa)` : "",
+  "tt-hudson-cruise": day => day ? `Circle Line Harbor Lights alle ${day.iso >= "2026-11-01" ? "17" : "19"} (orari di novembre da confermare)` : ""};
+const PREF_DAY = {"g-alba-brooklyn-bridge": "lun2", "px-city-climb-edge": "ven30", "px-ellis-hard-hat": "lun2", "px-city-hall-loop": "lun2", "px-comedy-cellar": "ven30", "px-karaoke-k-town": "mar3", "px-sunset-park-tramonto": "mar3",
+  "px-smalls-jazz-notte": "ven30", "px-new-museum-bowery": "mer4", "px-speakeasy-ingresso-segreto": "mar3", "px-rooftop-chiusi-riscaldati": "lun2", "px-broadway-lottery": "mar3", "px-immersivo-2026": "sab31", "px-rooftop-cinema-midtown": "mar3"};
+/* l'ora più tarda in cui ha senso arrivare */
+const LATEST = {"px-ellis-hard-hat": ["14:30", "l'ultimo tour parte alle 14:30"], "px-city-climb-edge": ["13:45", "le ultime partenze sono verso le 13:45 (da verificare)"], "px-nara-zwirner": ["17:30", "le gallerie chiudono verso le 18 (da verificare)"],
+  "tt-radio-bakery": ["15:00", "chiude alle 15:30 o quando finisce tutto"], "tt-apollo-bagels": ["16:30", "chiude alle 17"], "tt-liberty-bagels": ["17:30", "chiude alle 18"], "tt-baby-blues": ["14:30", "chiude presto (da verificare)"],
+  "tt-trinity-church": ["17:30", "chiude alle 18"], "tt-federal-hall": ["15:30", "chiude alle 16 (da verificare)"], "tt-brooklyn-flea": ["16:30", "chiude alle 17"]};
 const toMin = s => { const m = /^(\d{1,2}):(\d{2})/.exec(s || ""); return m ? +m[1] * 60 + +m[2] : 600; };
 const hm = m => `${Math.floor(m / 60) % 24}:${String(Math.round(m % 60)).padStart(2, "0")}`;
 let PIANO = {}, FATTO = {};
 
+/* gli itinerari proposti per un giorno si possono togliere da quel giorno (e rimettere) */
+function tolto(d, id){ return ((PIANO[d] || {}).tolti || []).includes(id); }
+function setTolto(d, id, on){
+  const P = PIANO[d] = PIANO[d] || {voci: []}, l = (P.tolti || []).filter(x => x !== id);
+  P.tolti = on ? l.concat([id]) : l; savePiano(d);
+  toast(on ? `Tolto da ${DAYS.find(x => x.id === d).short}` : `Rimesso in ${DAYS.find(x => x.id === d).short}`);
+}
 function roleFor(k, m){ const kd = kindOf(k); return kd === "pasto" ? (m === "mattina" ? "colazione" : m === "sera" ? "cena" : "pranzo") : kd === "sera" ? "sera" : kd.startsWith("passa") ? "di passaggio" : "visita"; }
 function entriesOf(d, extra){
   const l = ((PIANO[d] || {}).voci || []).map((e, i) => Object.assign({i}, e));
-  for (const p of PACKS) if (p.giorno === d) l.push({t: "pack", id: p.id, m: p.momento || "sera", fixed: true});
+  for (const p of PACKS) if (p.giorno === d && !tolto(d, p.id)) l.push(p.proposta ? {t: "pack", id: p.id, m: p.momento || "mattina", prop: true} : {t: "pack", id: p.id, m: p.momento || "sera", fixed: true});
   if (extra) l.push(Object.assign({extra: true}, extra));
   const day = DAYS.find(x => x.id === d);
   /* nello stesso momento della giornata, prima chi ha un orario fisso più presto (l'alba prima del resto della mattina) */
@@ -1635,6 +1704,7 @@ function dayPlan(d, extra){
     const nominal = p && p.inizio ? toMin(p.inizio) : e.m === "mattina" ? (e === ents[0] ? start : Math.min(start, cur)) : MOM_START[e.m];
     const f = stops.find(s => GEO[s.k] && GEO[s.k].lat != null), l0 = f ? legMin(pos, GEO[f.k]) : 0;
     if (cur + l0 < nominal || (p && p.inizio && e === ents[0] && !(PIANO[d] || {}).inizio)) cur = nominal - l0;
+    if (p && p.inizio && e === ents[0] && !(PIANO[d] || {}).inizio) shownStart = cur;
     if (fixFirst != null && e === ents[0] && !(PIANO[d] || {}).inizio && fixFirst - l0 < cur){ cur = fixFirst - l0; shownStart = cur; }
     e.ora = cur + l0; e.probs = probs; e.stops = [];
     rows.push({type: "entry", e, p});
@@ -1646,10 +1716,11 @@ function dayPlan(d, extra){
       const anchor = s.ora ? toMin(s.ora) : {pranzo: 720, cena: 1110, sera: 1170, drink: 1170, tramonto: sun - 40, "si balla": 1320, notte: 1320}[s.r];
       if (anchor && cur < anchor) cur = anchor;
       if (s.ora && cur > toMin(s.ora) + 10) probs.push(`${ITEMS[s.k].t}: ci arrivate verso le ${hm(cur)}, non alle ${s.ora}`);
-      const du = DUR_ID[s.k] || DUR[s.r] || 60, ora = cur, end = cur + du;
+      const du = s.dur || DUR_ID[s.k] || DUR[s.r] || 60, ora = cur, end = cur + du;
       rows.push({type: "stop", s, ora, n: g && g.lat != null ? n : "", e}); e.stops.push(s.k); cur = end; spans.push({k: s.k, a: ora, b: end, e});
       const a = AVV[s.k];
       if (a && a.chiuso && a.chiuso.includes(d)) probs.push(`${ITEMS[s.k].t}: ${a.motivo || "chiuso"}`);
+      if (LATEST[s.k] && ora > toMin(LATEST[s.k][0])) probs.push(`${ITEMS[s.k].t}: ci arrivate verso le ${hm(ora)}, ma ${LATEST[s.k][1]}`);
       if (d === "sab31" && !(p && p.giorno === "sab31") && end > 1125) probs.push("Alle 19 c'è la parata di Halloween");
       if (d === "dom1" && !(p && p.giorno === "dom1") && end > 1170) probs.push("Alle 20 c'è il Gatsby al Broadway Theatre");
       if (d === "dom1" && ora < 780 && !(p && p.id === "p-harlem") && ["uptown"].includes(zoneOf(s.k))) probs.push("La mattina c'è la maratona: Central Park e la Fifth Ave sono chiusi");
@@ -1702,7 +1773,7 @@ function openDay(d){
   for (const r of pl.rows){
     if (r.type === "entry"){
       const e = r.e, p = r.p;
-      body += `<li class="dp-h${e.probs.length ? " bad" : ""}"><div><span class="r">${MOM_L[e.m]}</span> <b>${esc(entryTitle(e))}</b>${e.t === "pack" ? ` <button type="button" class="lnk" data-pack="${esc(e.id)}">percorso</button>` : ""}${e.fixed ? ` <span class="src">fisso</span>` : ` <button type="button" class="lnk rm" data-unplan="${d}|${e.i}">Togli</button>`}</div>
+      body += `<li class="dp-h${e.probs.length ? " bad" : ""}"><div><span class="r">${MOM_L[e.m]}</span> <b>${esc(entryTitle(e))}</b>${e.t === "pack" ? ` <button type="button" class="lnk" data-pack="${esc(e.id)}">percorso</button>` : ""}${e.fixed ? ` <span class="src">fisso</span>` : e.prop ? ` <span class="src">proposto</span> <button type="button" class="lnk rm" data-untie="${d}|${esc(e.id)}">Togli</button>` : ` <button type="button" class="lnk rm" data-unplan="${d}|${e.i}">Togli</button>`}</div>
         ${e.probs.map(x => `<div class="cf">${esc(x)}</div>`).join("")}${p && p.pioggia ? `<div class="rain"><b>Se piove:</b> ${esc(p.pioggia)}</div>` : ""}</li>`;
     } else if (r.type === "leg") body += `<li class="leg">${esc(r.txt)}</li>`;
     else if (r.type === "stop") body += `<li><span class="num">${r.n}</span><div><span class="r">${hm(r.ora)} · ${esc(r.s.r)}</span> <button type="button" class="lnk" data-open="${esc(r.s.k)}">${esc(ITEMS[r.s.k].t)}</button>${r.s.was ? ` <span class="src">al posto di ${esc(ITEMS[r.s.was].t)}</span>` : ""}${r.s.n ? `<div class="src">${esc(r.s.n)}</div>` : ""}</div></li>`;
@@ -1725,6 +1796,7 @@ let ddSel = null;
 function defMoment(t, id){
   if (t === "pack"){ const q = ((PACKS.find(p => p.id === id) || {}).quando || "").toLowerCase(); return MOM.find(m => q.startsWith(m)) || MOM.find(m => q.includes(m)) || (q.includes("giornata") ? "mattina" : "pomeriggio"); }
   if (FIX_R[id] === "alba") return "mattina";
+  if (FIX_ORA[id]){ const o = toMin(FIX_ORA[id](DAYS.find(d => d.id === (PREF_DAY[id] || "ven30")))); return o < 750 ? "mattina" : o < 870 ? "pranzo" : o < 1110 ? "pomeriggio" : "sera"; }
   const kd = kindOf(id); return kd === "pasto" ? (MORNING_IDS.has(id) ? "mattina" : "pranzo") : kd === "sera" ? "sera" : "pomeriggio";
 }
 function openPicker(t, id){
@@ -1762,7 +1834,7 @@ async function savePiano(d){
   renderPacks(); renderPlan();
   if (openId) document.getElementById("dlg-plan").innerHTML = avvLine(openId) + placePlanBox(openId);
   if (!db){ savePlanLocal(); status("Salvato su questo dispositivo"); return; }
-  try { const P = PIANO[d] || {}; await db.collection("piano").doc(d).set({voci: P.voci || [], inizio: P.inizio || ""}); status("Piano salvato"); }
+  try { const P = PIANO[d] || {}; await db.collection("piano").doc(d).set({voci: P.voci || [], inizio: P.inizio || "", tolti: P.tolti || []}); status("Piano salvato"); }
   catch(e){ status("Piano non salvato: riprova"); }
 }
 async function saveFatto(id){
@@ -1785,7 +1857,7 @@ function prenotaRows(){
   const rows = PREN_FISSI.map(f => Object.assign({}, f));
   for (const k in PREN){
     const b = PREN[k]; if (!ITEMS[k] || PREN_FISSI.some(f => f.id === k)) continue;
-    const lv = b.livello || ""; if (!/difficile|impossibile|consigliata/.test(lv)) continue;
+    const lv = b.livello || ""; if (!/difficile|impossibile|consigliata|obbligatoria/.test(lv)) continue;
     const d = planned[k] || PREN_DATA[k], rel = planned[k] || likes(k); if (!rel) continue;
     const day = d && DAYS.find(x => x.id === d);
     let at, q;
@@ -1816,6 +1888,8 @@ document.addEventListener("click", e => {
   const dm = t.closest("[data-dm]"); if (dm){ ddSel.m = dm.dataset.dm; paintPicker(); return; }
   if (t.closest("[data-dd-add]")){ addPlan(); return; }
   const un = t.closest("[data-unplan]"); if (un){ const [d, i] = un.dataset.unplan.split("|"); unplan(d, +i); return; }
+  const ut = t.closest("[data-untie]"); if (ut){ const [d, id] = ut.dataset.untie.split("|"); setTolto(d, id, true); return; }
+  const rt = t.closest("[data-retie]"); if (rt){ const [d, id] = rt.dataset.retie.split("|"); setTolto(d, id, false); return; }
   const dy = t.closest("[data-day]"); if (dy){ LAYERS().filter(x => x !== pdlg).forEach(x => x.close()); openDay(dy.dataset.day); return; }
 });
 document.addEventListener("change", e => {
@@ -1895,18 +1969,30 @@ async function loadAll(){
   for (const f of ["data/guide_cose.json","data/guide_cibo.json","data/guide_hotdog.json","data/guide_street.json","data/dolci_1.json","data/dolci_2.json","data/dolci_3.json","data/guide_chinatown.json","data/guide_burger.json","data/guide_burger2.json","data/guide_nba.json"]){
     const g = await j(f); if (g){ guide = guide.concat(g); g.forEach(x => { DATA[x.id] = x; if (x.paragone) PAR[x.id] = x.paragone; }); }
   }
+  /* Cose pazzesche: una sezione propria; quelle che c'erano già si uniscono alla scheda esistente */
+  UNI = await j("data/unisci_px.json") || {};
+  for (const x of await j("data/guide_pazzesche.json") || []){
+    const u = UNI[x.id];
+    if (u){ const t = DATA[u.id] = DATA[u.id] || {id: u.id}; t.extra = (t.extra || []).concat([{t: x.titolo, d: x.descrizione, quando: x.quando, info: x.info, per_noi: x.per_noi, label: u.label}]); continue; }
+    guide.push(x); DATA[x.id] = x;
+  }
+  /* schede da TikTok: sezioni "Da TikTok" nei gruppi giusti */
+  for (const x of await j("data/guide_tiktok.json") || []){
+    const ts = TT_SEC[x.categoria] || ["Da TikTok: " + x.categoria.toLowerCase(), "vedere"];
+    x.sez = ts[0]; x.grp = ts[1]; guide.push(x); DATA[x.id] = x; if (x.paragone) PAR[x.id] = x.paragone;
+  }
   SCONTI = await j("data/sconti.json") || {};
   Object.assign(PAR, await j("data/paragoni.json") || {});
   PERC = await j("data/percorsi.json") || {};
   ZONE = await j("data/zone.json") || ZONE;
   HAS = new Set(await j("_imgs") || []); AVV = await j("data/avvisi.json") || {};
-  GEO = await j("data/geo.json") || {}; PREN = await j("data/prenota.json") || {}; MAP = await j("data/map.json"); PACKS = await j("data/pacchetti.json") || [];
-  for (const f of ["burger2", "extra"]){ Object.assign(GEO, await j(`data/geo_${f}.json`) || {}); Object.assign(PREN, await j(`data/prenota_${f}.json`) || {}); }
-  Object.assign(AVV, await j("data/avvisi_extra.json") || {});
-  for (const f of ["data/sticker.json", "data/sticker_extra.json", "data/sticker_extra2.json"]){ const g = await j(f) || {}; for (const k in g) STK[k] = (STK[k] || []).concat(g[k]); }
+  GEO = await j("data/geo.json") || {}; PREN = await j("data/prenota.json") || {}; MAP = await j("data/map.json"); PACKS = (await j("data/pacchetti.json") || []).concat(await j("data/pacchetti_itinerari.json") || []);
+  for (const f of ["burger2", "extra", "tiktok", "pazzesche", "tt"]){ Object.assign(GEO, await j(`data/geo_${f}.json`) || {}); Object.assign(PREN, await j(`data/prenota_${f}.json`) || {}); }
+  Object.assign(AVV, await j("data/avvisi_extra.json") || {}, await j("data/avvisi_tt.json") || {});
+  for (const f of ["data/sticker.json", "data/sticker_extra.json", "data/sticker_extra2.json", "data/sticker_tt.json"]){ const g = await j(f) || {}; for (const k in g) STK[k] = (STK[k] || []).concat(g[k]); }
   for (let i=0;i<5;i++) Object.assign(MENU, await j(`data/menu_${i}.json`) || {});
-  for (const f of ["cn", "burger2", "extra"]) Object.assign(MENU, await j(`data/menu_${f}.json`) || {});
-  for (const i of [...Array(14).keys(), "cn", "burger2", "extra"]){
+  for (const f of ["cn", "burger2", "extra", "tt"]) Object.assign(MENU, await j(`data/menu_${f}.json`) || {});
+  for (const i of [...Array(14).keys(), "cn", "burger2", "extra", "tt"]){
     const g = await j(`data/sel_${i}.json`); if (!g) continue;
     for (const k in g){ const o = g[k].ordine || [], gen = (g[k].generiche || []).filter(f => !o.includes(f)), cr = g[k].crediti || {}; SEL[k] = o.concat(gen); CAP[k] = Object.assign({}, g[k].didascalie || {}); for (const f of gen) if (!CAP[k][f]) CAP[k][f] = "Foto indicativa del piatto, non del locale"; for (const f in cr) CAP[k][f] = (CAP[k][f] ? CAP[k][f] + " · " : "") + "Foto: " + cr[f]; }
   }
@@ -1963,7 +2049,7 @@ async function loadVotes(){
     }, () => {});
     db.collection("piano").onSnapshot(snap => {
       PIANO = {}; FATTO = {};
-      snap.docs.forEach(d => { const x = d.data() || {}; if (d.id === "prenotazioni") FATTO = x.fatto || {}; else PIANO[d.id] = {voci: x.voci || [], inizio: x.inizio || ""}; });
+      snap.docs.forEach(d => { const x = d.data() || {}; if (d.id === "prenotazioni") FATTO = x.fatto || {}; else PIANO[d.id] = {voci: x.voci || [], inizio: x.inizio || "", tolti: x.tolti || []}; });
       renderPacks(); renderPlan();
     }, () => {});
     try { const n = await db.doc("note/" + (ME || "ale")).get(); if (n.exists) document.getElementById("nota").value = n.data().testo || ""; } catch(e){}
